@@ -1,0 +1,50 @@
+# Build from the monorepo root: `docker build -f jfc-host-portal/Dockerfile .`
+# — same reasoning as every backend service's Dockerfile (see e.g.
+# jfc-services/services/api-gateway/Dockerfile): this app's one workspace
+# dependency, @jfc/ui-web, is a sibling directory a Dockerfile scoped to
+# jfc-host-portal alone could never see.
+#
+# Unlike the backend Dockerfiles, this does NOT install from the real repo
+# root package.json — that workspace list also includes jfc-guest-app and
+# jfc-host-app (Expo/React Native apps with a large, unrelated dependency
+# tree), and yarn classic requires every workspace it lists to actually be
+# present. docker/root-package.json is a trimmed two-member stand-in
+# (@jfc/ui-web + jfc-host-portal only) that resolves the exact same way for
+# the one dependency this app actually has, without paying to install two
+# mobile apps' worth of packages to build a static site that never touches
+# them. See that file's own comment.
+FROM node:20-alpine AS build
+WORKDIR /app
+# node:20-alpine already ships a corepack-shimmed `yarn` — `npm install -g
+# yarn` collides with it (EEXIST). corepack's own `prepare` is the correct
+# way to pin the exact version (matches the real repo root's
+# `"packageManager": "yarn@1.22.22"`, which this trimmed build doesn't copy).
+RUN corepack enable && corepack prepare yarn@1.22.22 --activate
+
+COPY jfc-host-portal/docker/root-package.json ./package.json
+COPY jfc-ui-web ./jfc-ui-web
+COPY jfc-host-portal ./jfc-host-portal
+RUN yarn install
+
+# @jfc/ui-web ships compiled (`main`/`types` point at dist/ — see its own
+# package.json) — jfc-host-portal's own build (`tsc -b && vite build`)
+# resolves it as a real published package, not source, so it has to be
+# built first or `tsc -b`'s project-reference resolution and Vite's own
+# module resolution both fail to find it.
+RUN yarn workspace @jfc/ui-web run build
+
+# Baked in at build time (Vite inlines `import.meta.env.VITE_*` into the
+# bundle — there's no reading these at container start) — see
+# jfc-host-portal/.env.example for what each one means and why. Defaults
+# match local dev; a real deploy passes real ones via --build-arg.
+ARG VITE_API_BASE_URL=http://localhost:4000
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+RUN yarn workspace jfc-host-portal run build
+
+# The build stage's node_modules (yarn, TypeScript, Vite, every dev
+# dependency of both workspaces) never needs to exist past this point —
+# only jfc-host-portal/dist, the static output, does. nginx serves it.
+FROM nginx:1.27-alpine
+COPY jfc-host-portal/docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/jfc-host-portal/dist /usr/share/nginx/html
+EXPOSE 80

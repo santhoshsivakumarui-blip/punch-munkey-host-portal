@@ -1,0 +1,354 @@
+/* Host-only overrides — layered on top of @jfc/ui-web's tokens.css (a real
+   workspace dependency, see package.json). Nothing here yet is specific
+   enough to Host to avoid generalizing into the shared library; add
+   overrides here first, promote to the library once Admin/Support need the
+   same shape too. Mirrors jfc-admin-portal/jfc-support-portal's identical
+   comment. */
+
+/* ── App shell: left sidebar (tree nav) + top bar (search) ────────────────
+   Host-portal's own layout, not a variant of @jfc/ui-web's PortalShell —
+   Admin/Support still use that component's horizontal chrome-nav as-is.
+   Reuses the same design tokens (--chrome-*, --paper-*, --r-*) so it reads
+   as the same product, just a different shell shape. */
+
+.app-shell { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 232px;
+  flex: none;
+  background: var(--chrome-base);
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: width var(--motion-sheet-in, 220ms ease);
+}
+
+/* Children keep their natural (open) width so collapsing genuinely slides
+   them out of view via the parent's shrinking width + overflow-x: hidden,
+   instead of squashing/reflowing the tree's text as it goes. */
+.sidebar > * { min-width: 232px; }
+
+.sidebar.closed { width: 0; }
+
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-full);
+  background: var(--paper-tint2);
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  flex: none;
+  transition: background 120ms ease-out, color 120ms ease-out;
+}
+.sidebar-toggle:hover { background: var(--paper-border); color: var(--text-primary); }
+
+.sidebar-tree { display: flex; flex-direction: column; padding: 10px 12px 20px; gap: 2px; }
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: var(--r-md);
+  font-size: 12.5px;
+  color: var(--chrome-text);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+}
+
+.sidebar-item:hover { color: var(--chrome-text-strong); background: var(--chrome-raised); }
+.sidebar-item.active { color: var(--chrome-text-strong); background: var(--chrome-raised); font-weight: 500; }
+
+.sidebar-branch-toggle svg { flex: none; transition: transform 120ms ease-out; }
+
+.sidebar-branch-children {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 0 4px;
+  padding-left: 20px;
+  border-left: 1px solid var(--chrome-border);
+  margin-left: 21px;
+}
+
+.sidebar-item-child { padding: 7px 12px; font-size: 12px; }
+
+.app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.topbar {
+  height: 64px;
+  flex: none;
+  padding: 0 28px;
+  background: var(--paper-card);
+  border-bottom: 1px solid var(--paper-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.topbar-right { display: flex; align-items: center; gap: 12px; flex: none; }
+
+.app-content { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+
+/* `1g`'s pill step row — one capsule per step, connected by short lines,
+   the badge inside each pill (not below it) carrying the check/number.
+   Replaces an earlier circle-badge-with-label-underneath version that
+   didn't match the mockup's actual shape. */
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wizard-pill-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 13px;
+  border-radius: var(--r-full);
+  font: 400 12px var(--font-body);
+  color: var(--text-secondary);
+  background: var(--paper-tint2);
+  border: none;
+  cursor: default;
+  font-family: inherit;
+}
+
+.wizard-pill-step.done {
+  background: var(--sage-pale);
+  color: var(--sage-text);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.wizard-pill-step.active {
+  background: var(--amber-base);
+  color: #fff;
+  font-weight: 500;
+}
+
+.wizard-pill-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--r-full);
+  font: 500 10px var(--font-mono);
+  flex: none;
+}
+
+.wizard-pill-step.done .wizard-pill-badge {
+  background: var(--sage-base);
+  color: #fff;
+}
+
+.wizard-pill-step.active .wizard-pill-badge {
+  background: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+.wizard-step-connector {
+  width: 18px;
+  height: 1px;
+  flex: none;
+  background: var(--paper-border, rgba(32, 30, 29, 0.12));
+}
+
+/* `2j`'s "what kind of night is this" card selector. */
+.event-type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.event-type-card {
+  padding: 16px;
+  border-radius: var(--r-md);
+  background: var(--paper-card);
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.event-type-card.selected {
+  border-color: var(--amber-base);
+  box-shadow: var(--shadow-md);
+}
+
+.event-type-card-title {
+  font: 500 14px var(--font-body);
+  color: var(--text-primary);
+}
+
+.event-type-card-body {
+  font: 400 11.5px/1.45 var(--font-body);
+  color: var(--text-secondary);
+}
+
+/* `2k`/`1g`'s pill-shaped 2-way/3-way toggle (unlock timing, reveal rule). */
+.segmented {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: var(--r-full);
+  background: var(--paper-tint2);
+}
+
+.segmented-option {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--r-full);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font: 400 12px var(--font-body);
+  text-align: center;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.segmented-option.active {
+  background: var(--paper-card);
+  color: var(--text-primary);
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+}
+
+/* `2k`'s radius slider — a native range input restyled to the pill/thumb
+   look, since no slider component exists in @jfc/ui-web yet
+   (08-component-inventory.md's "fewer than three screens, build locally"
+   rule — this is the only screen that needs one). */
+.radius-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--paper-tint2);
+  outline: none;
+}
+
+.radius-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-full);
+  background: var(--paper-card);
+  border: 3px solid var(--amber-base);
+  cursor: pointer;
+}
+
+.radius-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-full);
+  background: var(--paper-card);
+  border: 3px solid var(--amber-base);
+  cursor: pointer;
+}
+
+/* `1g`'s excise-compliance +/- counter. */
+.stepper-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-full);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 400 15px var(--font-body);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.stepper-btn.minus {
+  background: var(--paper-tint2);
+  color: var(--text-primary);
+}
+
+.stepper-btn.plus {
+  background: var(--amber-base);
+  color: #fff;
+}
+
+/* `2k`'s schematic public-radius circle — decorative, not a real map (no
+   maps SDK is wired into this codebase anywhere), same honest substitute
+   spirit as the mockup's own dashed grid-line background standing in for
+   a map tile. */
+.radius-visual {
+  position: relative;
+  border-radius: var(--r-lg);
+  background: var(--paper-tint2);
+  overflow: hidden;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radius-visual-ring {
+  border-radius: var(--r-full);
+  border: 2.5px dashed var(--amber-dark, var(--amber-base));
+  background: rgba(198, 113, 57, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radius-visual-pin {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--r-full);
+  background: var(--text-primary);
+  border: 3px solid var(--paper-tint2);
+}
+
+/* Form (or, on Review, the summary grid) on the left, a live "what guests
+   will see" preview pinned on the right — same two-column rhythm as the
+   rest of this app (e.g. the auth pages' brand+form split), rather than
+   each wizard step floating as a single narrow form with nothing to
+   anchor it visually. Stacks to one column under 960px so the preview
+   doesn't starve the form for room on a laptop-width window. */
+.wizard-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.wizard-layout > *:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.wizard-layout > *:last-child {
+  flex: none;
+  width: 320px;
+}
+
+@media (max-width: 960px) {
+  .wizard-layout {
+    flex-direction: column;
+  }
+  .wizard-layout > *:last-child {
+    width: 100%;
+  }
+}

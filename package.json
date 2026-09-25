@@ -1,0 +1,33 @@
+{
+  "name": "jfc-host-portal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "JFC Host — standalone web-only portal (React + Vite) for the 'desk' half of the Host experience (KYH onboarding, event wizard, payouts, disputes). The 'floor' half (live dashboard, scanner, bar terminal) is jfc-host-app (Expo/React Native). See ../ui-ai/design_handoff_justforcpls/01-architecture.md's \"Shared UI libraries\" section — this app is a Yarn workspace member alongside jfc-admin-portal and jfc-support-portal, not a copy of either.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "@jfc/ui-web": "*",
+    "jotai": "^2.9.3",
+    "qrcode.react": "^4.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
+    "react-router-dom": "^6.24.1",
+    "yup": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.5.3",
+    "vite": "^8.2.2",
+    "vitest": "^2.0.5"
+  }
+}
