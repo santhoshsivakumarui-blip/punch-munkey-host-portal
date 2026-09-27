@@ -32,12 +32,13 @@ type UnlockMode = (typeof UNLOCK_OPTIONS)[number]['value'];
  * `coverImageUrl`, all real columns `PATCH /events/:id` already accepted
  * but nothing in this wizard ever sent before this redesign.
  *
- * `addressLine`/`gateCode`/`radiusKm` and the reveal window aren't fields
- * `POST /events` (or its `venues` insert) accepts at all — `revealAt` is
- * computed server-side as `doorsAt - 4h`, fixed, not host-configurable,
- * and there's no address or geofence-radius column exposed by this route.
- * All three stay in the local draft only, same flagged-not-faked treatment
- * as the Menu/Staff steps.
+ * `addressLine` and `gateCode` are saved with `PUT /events/:id/location`
+ * right after the event exists: event-service hands them straight to
+ * location-service, which stores them encrypted, and guests only see them
+ * from the reveal time on (GET /events/:id/address). `radiusKm` and the
+ * reveal window stay in the local draft only: `revealAt` is computed
+ * server-side as `doorsAt - 4h`, fixed, not host-configurable, and there's
+ * no geofence-radius column.
  */
 export default function WizardLocationPage() {
   const navigate = useNavigate();
@@ -95,6 +96,9 @@ export default function WizardLocationPage() {
         if (basics.coverImageUrl?.trim()) patch.coverImageUrl = basics.coverImageUrl.trim();
         await api.patch<EventRecord>(paths.event(eventId), patch);
       }
+      // Saved every time this step is submitted, so going back and editing
+      // the address updates the stored (encrypted) copy too.
+      await api.put(paths.eventLocation(eventId), { addressLine: values.addressLine, gateCode: values.gateCode });
       saveDraft({ location: values, eventId, eventCode });
       navigate('/events/new/menu');
     } catch (err) {

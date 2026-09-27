@@ -145,7 +145,7 @@ export function fetchHostMe(): Promise<HostProfile> {
 // *.ts for the source of truth. Mirrors jfc-host-app/lib/api.ts's shape. ---
 
 interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   idempotencyKey?: string;
 }
@@ -189,6 +189,8 @@ export const api = {
   get: <T>(path: string, opts?: Omit<RequestOptions, 'method' | 'body'>) => genericRequest<T>(path, { ...opts, method: 'GET' }),
   post: <T>(path: string, body?: unknown, opts?: Omit<RequestOptions, 'method' | 'body'>) =>
     genericRequest<T>(path, { ...opts, method: 'POST', body }),
+  put: <T>(path: string, body?: unknown, opts?: Omit<RequestOptions, 'method' | 'body'>) =>
+    genericRequest<T>(path, { ...opts, method: 'PUT', body }),
   patch: <T>(path: string, body?: unknown, opts?: Omit<RequestOptions, 'method' | 'body'>) =>
     genericRequest<T>(path, { ...opts, method: 'PATCH', body }),
   delete: <T>(path: string, body?: unknown, opts?: Omit<RequestOptions, 'method' | 'body'>) =>
@@ -202,6 +204,9 @@ export const paths = {
   hostsMeEventsSearch: (q: string) => `/api/event-service/hosts/me/events?q=${encodeURIComponent(q)}`,
   events: '/api/event-service/events',
   event: (id: string) => `/api/event-service/events/${id}`,
+  /** Exact address + gate code, stored encrypted by location-service.
+   * PUT to save, GET (owning host only) to read back. */
+  eventLocation: (id: string) => `/api/event-service/events/${id}/location`,
   eventDashboard: (id: string) => `/api/event-service/events/${id}/dashboard`,
   eventSubmit: (id: string) => `/api/event-service/events/${id}/submit`,
   eventPublish: (id: string) => `/api/event-service/events/${id}/publish`,

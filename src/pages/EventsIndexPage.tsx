@@ -88,7 +88,9 @@ export default function EventsIndexPage() {
     };
   }, [search]);
 
-  const events = loadable.state === 'hasData' ? loadable.data : [];
+  // Memoized: the `: []` branch is a new array every render, which made the
+  // useMemo below recompute on every render.
+  const events = useMemo(() => (loadable.state === 'hasData' ? loadable.data : []), [loadable]);
   const activeTab = FILTER_TABS.find((t) => t.key === tab) ?? FILTER_TABS[0];
   const filteredEvents = useMemo(() => {
     const term = search.trim().toLowerCase();
