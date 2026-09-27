@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from 'react';
-import { Modal, Icon, Chip } from '@jfc/ui-web';
+import { Modal, Icon, Chip } from '@punch-munkey/ui-web';
 import type { useHostSearch } from '../hooks/useHostSearch';
 
 /**

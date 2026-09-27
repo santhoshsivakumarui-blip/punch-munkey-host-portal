@@ -1,13 +1,13 @@
-# jfc-host-portal
+# punch-munkey-host-portal
 
-JFC Host — **standalone web-only portal** (React + Vite) for the "desk" half of the
+Punch Munkey Host — **standalone web-only portal** (React + Vite) for the "desk" half of the
 Host experience: KYH onboarding, the 5-step event wizard, screening & ratio,
 transfers, payouts, disputes, ratings, promoters, notifications and staff device
 pairing. The "floor" half (live dashboard, scanner, bar terminal, staff chat, SOS) is
-`jfc-host-app` (Expo/React Native) — see
+`punch-munkey-host-app` (Expo/React Native) — see
 `../ui-ai/design_handoff_justforcpls/01-architecture.md`'s Host section for the split.
 
-`1h` (screening) and `7g` (transfers) were briefly misrouted into `jfc-host-app` in an
+`1h` (screening) and `7g` (transfers) were briefly misrouted into `punch-munkey-host-app` in an
 earlier pass here, following `07-navigation.md`'s route tree and `06-screen-specs.md`'s
 table — both docs disagree with the actual design frames, which draw both at 1180px
 (desktop), not 390px. Checked directly against `designs/justforcpls - Host.dc.html`
@@ -15,8 +15,8 @@ and moved here, onto `/requests` — both screens share one "Requests" sidebar i
 pending-count badge in the design itself, so they're one page with two tabs rather
 than two separate nav entries.
 
-It is a separate repo from `jfc-admin-portal`, `jfc-support-portal`, `jfc-guest-app`
-and `jfc-host-app`, but **is** an npm/Yarn workspace member alongside them and the two
+It is a separate repo from `punch-munkey-admin-portal`, `punch-munkey-support-portal`, `punch-munkey-guest-app`
+and `punch-munkey-host-app`, but **is** an npm/Yarn workspace member alongside them and the two
 shared UI libraries — see `../package.json` and the architecture doc's "Shared UI
 libraries" section for why.
 
@@ -40,8 +40,8 @@ libraries" section for why.
 - **Host-and-earn / Promoters** (`1i`), **Notifications** (`6c`), **Staff devices**
   (`2d`)
 
-All pages are built against `@jfc/ui-web` — a real, live workspace dependency (see
-`package.json`), not a local copy. `src/main.tsx` imports its `@jfc/ui-web/tokens.css`
+All pages are built against `@punch-munkey/ui-web` — a real, live workspace dependency (see
+`package.json`), not a local copy. `src/main.tsx` imports its `@punch-munkey/ui-web/tokens.css`
 for the paper-theme design tokens; `src/styles.css` holds the handful of classes
 specific to Host (the wizard step indicator) that don't belong in the shared library
 yet.
@@ -49,19 +49,19 @@ yet.
 ## Local development
 
 Install from the **workspace root** (`../`), not from inside this folder —
-`@jfc/ui-web` needs to be symlinked in by the root install:
+`@punch-munkey/ui-web` needs to be symlinked in by the root install:
 
 ```bash
 cd ..
 yarn install     # not `npm install` — see the architecture doc's note on why
-cd jfc-host-portal
+cd punch-munkey-host-portal
 npm run dev
 ```
 
 ## Status
 
 **Auth is real but genuinely different from the other two portals.**
-`jfc-admin-portal`/`jfc-support-portal` sit behind identity-service's operator
+`punch-munkey-admin-portal`/`punch-munkey-support-portal` sit behind identity-service's operator
 session (httpOnly cookie). Host auth is a different contract:
 `identity-service/src/routes/hosts.ts`'s own comment explains why —
 `POST /hosts/apply` reuses the guest OTP flow (`POST /auth/otp/request`, then
@@ -86,7 +86,7 @@ than working around silently:
 accepting a file that goes nowhere.
 
 Each page's data beyond `/hosts/apply` and `/hosts/me` is **mocked inline**, since
-`jfc-services` doesn't have the rest of `04-api-surface.md`'s Host endpoints yet
+`punch-munkey-services` doesn't have the rest of `04-api-surface.md`'s Host endpoints yet
 (events, payouts, disputes, reports, ratings, promoters, notifications, device
 pairing). The event wizard's per-step "save" is real client-side (a localStorage
 draft, `src/lib/wizardDraft.ts`) but not yet the real `PATCH /events/:id` the design

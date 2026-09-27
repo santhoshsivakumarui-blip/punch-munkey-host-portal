@@ -1,7 +1,7 @@
 {
-  "name": "jfc-host-portal-docker-build",
+  "name": "punch-munkey-host-portal-docker-build",
   "version": "0.1.0",
   "private": true,
-  "description": "Not the real monorepo root package.json (../../package.json) — a trimmed stand-in the Dockerfile installs from instead. The real root's `workspaces` list also includes jfc-guest-app and jfc-host-app (Expo/React Native apps with their own large, unrelated native-adjacent dependency trees) — yarn classic requires every explicitly-listed workspace path to exist and have a package.json, so building this image from the real root would mean installing those two apps' dependencies just to produce a static web bundle that never touches them. This lists only jfc-host-portal and the one workspace dependency it actually has: @jfc/ui-web.",
-  "workspaces": ["jfc-ui-web", "jfc-host-portal"]
+  "description": "Not the real monorepo root package.json (../../package.json) — a trimmed stand-in the Dockerfile installs from instead. The real root's `workspaces` list also includes punch-munkey-guest-app and punch-munkey-host-app (Expo/React Native apps with their own large, unrelated native-adjacent dependency trees) — yarn classic requires every explicitly-listed workspace path to exist and have a package.json, so building this image from the real root would mean installing those two apps' dependencies just to produce a static web bundle that never touches them. This lists only punch-munkey-host-portal and the one workspace dependency it actually has: @punch-munkey/ui-web.",
+  "workspaces": ["punch-munkey-ui-web", "punch-munkey-host-portal"]
 }

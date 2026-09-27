@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Button } from '@jfc/ui-web';
+import { Button } from '@punch-munkey/ui-web';
 
 function formatSavedAt(iso?: string): string | null {
   if (!iso) return null;

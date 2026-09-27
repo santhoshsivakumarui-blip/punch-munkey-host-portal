@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Page, PageHeader, Panel, PanelTitle, Chip, Button, TextField, Select, DataTable, EmptyState, Skeleton, useToast } from '@jfc/ui-web';
-import type { ChipTone, SelectOption } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, PanelTitle, Chip, Button, TextField, Select, DataTable, EmptyState, Skeleton, useToast } from '@punch-munkey/ui-web';
+import type { ChipTone, SelectOption } from '@punch-munkey/ui-web';
 import { suppliersLoadable, suppliersAtom, createSupplierAtom, purchaseOrdersLoadable, purchaseOrdersAtom, createPurchaseOrderAtom, receivePurchaseOrderAtom } from '../lib/atoms';
 import { showApiError, useToastOnError } from '../lib/toastError';
 import { formatINR } from '../lib/format';

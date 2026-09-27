@@ -5,10 +5,10 @@ on:
     branches: [main]
   pull_request:
 
-# The shared UI library (@jfc/ui-web) lives in its own repo, and the local
+# The shared UI library (@punch-munkey/ui-web) lives in its own repo, and the local
 # Yarn workspace root that links it isn't versioned anywhere. So this job
 # checks out punch-munkey-ui-web next to this repo and writes a temporary workspace
-# root listing just the two, the same way jfc-host-portal's Dockerfile builds.
+# root listing just the two, the same way punch-munkey-host-portal's Dockerfile builds.
 #
 # If the sibling repo is private, add a repository secret named
 # SIBLING_REPOS_TOKEN: a fine-grained token with read-only "Contents" access
@@ -25,11 +25,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          path: jfc-host-portal
+          path: punch-munkey-host-portal
       - uses: actions/checkout@v4
         with:
           repository: santhoshsivakumarui-blip/punch-munkey-ui-web
-          path: jfc-ui-web
+          path: punch-munkey-ui-web
           token: ${{ secrets.SIBLING_REPOS_TOKEN || github.token }}
       - uses: actions/setup-node@v4
         with:
@@ -42,14 +42,14 @@ jobs:
             "name": "ci-workspace",
             "private": true,
             "packageManager": "yarn@1.22.22",
-            "workspaces": ["jfc-ui-web", "jfc-host-portal"]
+            "workspaces": ["punch-munkey-ui-web", "punch-munkey-host-portal"]
           }
           EOF
       - run: yarn install --non-interactive
-      - run: yarn workspace @jfc/ui-web run build
-      - run: yarn workspace jfc-host-portal run lint --max-warnings 0
-      - run: yarn workspace jfc-host-portal run build
-      - run: yarn workspace jfc-host-portal run test
+      - run: yarn workspace @punch-munkey/ui-web run build
+      - run: yarn workspace punch-munkey-host-portal run lint --max-warnings 0
+      - run: yarn workspace punch-munkey-host-portal run build
+      - run: yarn workspace punch-munkey-host-portal run test
 
   docker:
     name: Docker image
@@ -57,12 +57,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          path: jfc-host-portal
+          path: punch-munkey-host-portal
       - uses: actions/checkout@v4
         with:
           repository: santhoshsivakumarui-blip/punch-munkey-ui-web
-          path: jfc-ui-web
+          path: punch-munkey-ui-web
           token: ${{ secrets.SIBLING_REPOS_TOKEN || github.token }}
       # The Dockerfile expects the parent folder as its build context, with
-      # jfc-host-portal and jfc-ui-web side by side, which is the layout above.
-      - run: docker build -f jfc-host-portal/Dockerfile -t jfc-host-portal-ci .
+      # punch-munkey-host-portal and punch-munkey-ui-web side by side, which is the layout above.
+      - run: docker build -f punch-munkey-host-portal/Dockerfile -t punch-munkey-host-portal-ci .

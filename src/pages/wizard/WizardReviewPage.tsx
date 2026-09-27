@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { Page, Panel, PanelTitle, KvRow, Chip, Button, EmptyState, Checkbox, useToast } from '@jfc/ui-web';
+import { Page, Panel, PanelTitle, KvRow, Chip, Button, EmptyState, Checkbox, useToast } from '@punch-munkey/ui-web';
 import { WizardSteps } from '../../components/WizardSteps';
 import { WizardTopBar } from '../../components/WizardTopBar';
 import { WizardPreviewCard } from '../../components/WizardPreviewCard';

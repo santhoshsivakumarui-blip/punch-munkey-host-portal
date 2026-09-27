@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Chip, Button, Skeleton, EmptyState } from '@jfc/ui-web';
+import { Chip, Button, Skeleton, EmptyState } from '@punch-munkey/ui-web';
 import { api, ApiError, paths } from '../lib/api';
 import { showApiError } from '../lib/toastError';
 import type { PairedDevice, StaffInviteInfo } from '../lib/types';
@@ -13,7 +13,7 @@ import type { PairedDevice, StaffInviteInfo } from '../lib/types';
  * whatever phone the shared link was opened on, which won't always be the
  * staff member's own host-app install — so the result is shown once as a
  * copyable token, same shown-once pattern as DevicesPage's direct-pair
- * flow, for them to paste into jfc-host-app's `(host)/pair-device.tsx`
+ * flow, for them to paste into punch-munkey-host-app's `(host)/pair-device.tsx`
  * "Or, paste a pairing token from the desk" field.
  */
 export default function InviteAcceptPage() {

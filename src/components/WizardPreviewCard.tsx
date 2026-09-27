@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { Panel, Chip, Button } from '@jfc/ui-web';
+import { Panel, Chip, Button } from '@punch-munkey/ui-web';
 import { sessionAtom } from '../lib/atoms';
 import type { BasicsFormValues, LocationFormValues, StaffFormValues } from '../schemas/wizard';
 import type { MenuItemDraft } from '../lib/wizardDraft';
@@ -31,7 +31,7 @@ function formatTime(t?: string): string {
 /**
  * A live "what guests will see" mock of the event card being assembled,
  * shown alongside every wizard step — same title/area+date/price hierarchy
- * as the guest app's Discover card (jfc-guest-app's `(tabs)/index.tsx`),
+ * as the guest app's Discover card (punch-munkey-guest-app's `(tabs)/index.tsx`),
  * so a host can anticipate the guest-facing result rather than trusting a
  * plain form blindly. Takes a merge of the saved draft and the current
  * step's live (unsaved) form values, so it updates as the host types, not

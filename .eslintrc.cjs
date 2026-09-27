@@ -1,5 +1,5 @@
 /* ESLint 8 (legacy config), matching the `eslint src --ext .ts,.tsx` lint
- * script. Same base as jfc-services/packages/config/.eslintrc.base.json,
+ * script. Same base as punch-munkey-services/packages/config/.eslintrc.base.json,
  * plus React hooks rules and a browser environment. */
 module.exports = {
   root: true,

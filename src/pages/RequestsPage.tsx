@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { loadable } from 'jotai/utils';
-import { Page, PageHeader, Panel, Chip, Button, Select, EmptyState, DataTable, ReasonField, ReplyComposer, MessageBubble, useToast } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, Chip, Button, Select, EmptyState, DataTable, ReasonField, ReplyComposer, MessageBubble, useToast } from '@punch-munkey/ui-web';
 import {
   approveGuestAtom,
   declineGuestAtom,

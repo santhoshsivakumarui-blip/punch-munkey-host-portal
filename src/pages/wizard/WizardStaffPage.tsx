@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSetAtom } from 'jotai';
-import { Page, Panel, TextField, Button, Select, useToast } from '@jfc/ui-web';
+import { Page, Panel, TextField, Button, Select, useToast } from '@punch-munkey/ui-web';
 import { WizardSteps } from '../../components/WizardSteps';
 import { WizardTopBar } from '../../components/WizardTopBar';
 import { WizardPreviewCard } from '../../components/WizardPreviewCard';

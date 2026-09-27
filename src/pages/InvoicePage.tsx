@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { loadable } from 'jotai/utils';
-import { Page, PageHeader, Panel, PanelTitle, KvRow, DataTable, StatGrid, StatTile, Chip, Button, TextField, Select, ConfirmModal, Skeleton, EmptyState, useToast } from '@jfc/ui-web';
-import type { ChipTone, SelectOption } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, PanelTitle, KvRow, DataTable, StatGrid, StatTile, Chip, Button, TextField, Select, ConfirmModal, Skeleton, EmptyState, useToast } from '@punch-munkey/ui-web';
+import type { ChipTone, SelectOption } from '@punch-munkey/ui-web';
 import { eventsLoadable, voidFnbRedemptionAtom, accountingSummaryAtom, selectedBusinessEventIdAtom } from '../lib/atoms';
 import { api, paths } from '../lib/api';
 import { showApiError, useToastOnError } from '../lib/toastError';

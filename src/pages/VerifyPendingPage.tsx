@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Chip, Button, Panel, useToast } from '@jfc/ui-web';
+import { Chip, Button, Panel, useToast } from '@punch-munkey/ui-web';
 import { sessionAtom, hostDocumentsAtom, hostDocumentsLoadable, uploadHostDocumentAtom } from '../lib/atoms';
 import { showApiError, useToastOnError } from '../lib/toastError';
 import type { HostDocument, HostDocumentType } from '../lib/types';
@@ -9,8 +9,8 @@ import type { HostDocument, HostDocumentType } from '../lib/types';
 // `3f` — verify (phone, not email — see SignInPage's doc comment) then KYH
 // pending. Reached right after SignUpPage's submit; `kyhState` comes from
 // the real `hosts.kyh_state` column (`submitted` until an admin decides via
-// the real `POST /admin/kyh/:hostId/decide` — see jfc-admin-portal's
-// VerificationPage and jfc-support-portal's KyhDelegatedPage for the two
+// the real `POST /admin/kyh/:hostId/decide` — see punch-munkey-admin-portal's
+// VerificationPage and punch-munkey-support-portal's KyhDelegatedPage for the two
 // operator-side surfaces that call it).
 //
 // Document upload lives here rather than on SignUpPage — `POST

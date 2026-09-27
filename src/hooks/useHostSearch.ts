@@ -5,7 +5,7 @@ import { disputesLoadable, reportsLoadable, promotersLoadable, devicesLoadable }
 import { formatINR } from '../lib/format';
 import { api, paths } from '../lib/api';
 import type { EventRecord } from '../lib/types';
-import type { ChipTone } from '@jfc/ui-web';
+import type { ChipTone } from '@punch-munkey/ui-web';
 
 export interface SearchResultItem {
   id: string;

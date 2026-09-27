@@ -2,7 +2,7 @@ import { clearToken, getToken } from './session';
 import type { HostDocument, HostDocumentType } from './types';
 
 // First fetch wrapper in this app — same request()/ApiError shape as
-// jfc-admin-portal/jfc-support-portal's lib/api.ts, but bearer-token auth
+// punch-munkey-admin-portal/punch-munkey-support-portal's lib/api.ts, but bearer-token auth
 // instead of `credentials: 'include'` (see session.ts's doc comment for why
 // host auth is a different contract from operator auth).
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000';
@@ -117,12 +117,12 @@ export interface AuthUser {
 }
 
 /**
- * `POST /auth/otp/verify` — the shared, lighter-weight verify jfc-guest-app
+ * `POST /auth/otp/verify` — the shared, lighter-weight verify punch-munkey-guest-app
  * also uses. For a phone that's already a host, this mints a real host-kind
  * token from just phone + OTP; no legalEntity/displayName round-trip. The
  * caller (signInWithOtpAtom) still has to check `user.kind === 'host'`
  * itself — this route happily mints a *new guest* account for a phone it's
- * never seen before (same as it does for jfc-guest-app), which is the
+ * never seen before (same as it does for punch-munkey-guest-app), which is the
  * wrong outcome for someone trying to sign in as a host who mistyped their
  * number or never applied — that's not this function's job to prevent.
  */
@@ -134,15 +134,15 @@ export function verifyOtp(phoneE164: string, otp: string): Promise<{ accessToken
 }
 
 /** `GET /hosts/me` — session restore on load, same role session restore
- * plays in jfc-admin-portal/jfc-support-portal's auth.tsx, just bearer-
+ * plays in punch-munkey-admin-portal/punch-munkey-support-portal's auth.tsx, just bearer-
  * token-driven instead of cookie-driven. */
 export function fetchHostMe(): Promise<HostProfile> {
   return request('/api/identity-service/hosts/me');
 }
 
 // --- Generic client + every other real host-facing route this portal
-// calls, in one place — see each jfc-services/services/<name>/src/routes/
-// *.ts for the source of truth. Mirrors jfc-host-app/lib/api.ts's shape. ---
+// calls, in one place — see each punch-munkey-services/services/<name>/src/routes/
+// *.ts for the source of truth. Mirrors punch-munkey-host-app/lib/api.ts's shape. ---
 
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';

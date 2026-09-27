@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useAtomValue } from 'jotai';
-import { Page, Panel, TextField, Button } from '@jfc/ui-web';
+import { Page, Panel, TextField, Button } from '@punch-munkey/ui-web';
 import { WizardSteps } from '../../components/WizardSteps';
 import { WizardTopBar } from '../../components/WizardTopBar';
 import { WizardPreviewCard } from '../../components/WizardPreviewCard';

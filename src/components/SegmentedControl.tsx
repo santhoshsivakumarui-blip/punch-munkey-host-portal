@@ -1,6 +1,6 @@
 /** `2k`/`1g`'s pill-shaped toggle (unlock timing, reveal rule) — two call
  * sites, so per 08-component-inventory.md's own rule this stays local
- * rather than moving into @jfc/ui-web. */
+ * rather than moving into @punch-munkey/ui-web. */
 export function SegmentedControl<T extends string>({
   value,
   onChange,

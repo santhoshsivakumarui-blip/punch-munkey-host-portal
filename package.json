@@ -1,8 +1,8 @@
 {
-  "name": "jfc-host-portal",
+  "name": "punch-munkey-host-portal",
   "version": "0.1.0",
   "private": true,
-  "description": "JFC Host — standalone web-only portal (React + Vite) for the 'desk' half of the Host experience (KYH onboarding, event wizard, payouts, disputes). The 'floor' half (live dashboard, scanner, bar terminal) is jfc-host-app (Expo/React Native). See ../ui-ai/design_handoff_justforcpls/01-architecture.md's \"Shared UI libraries\" section — this app is a Yarn workspace member alongside jfc-admin-portal and jfc-support-portal, not a copy of either.",
+  "description": "Punch Munkey Host — standalone web-only portal (React + Vite) for the 'desk' half of the Host experience (KYH onboarding, event wizard, payouts, disputes). The 'floor' half (live dashboard, scanner, bar terminal) is punch-munkey-host-app (Expo/React Native). See ../ui-ai/design_handoff_justforcpls/01-architecture.md's \"Shared UI libraries\" section — this app is a Yarn workspace member alongside punch-munkey-admin-portal and punch-munkey-support-portal, not a copy of either.",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
-    "@jfc/ui-web": "*",
+    "@punch-munkey/ui-web": "*",
     "jotai": "^2.9.3",
     "qrcode.react": "^4.2.0",
     "react": "^18.3.1",

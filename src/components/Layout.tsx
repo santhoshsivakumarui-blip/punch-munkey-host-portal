@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Chip, Icon, Footer, Popover, ConfirmModal, useToast } from '@jfc/ui-web';
+import { Chip, Icon, Footer, Popover, ConfirmModal, useToast } from '@punch-munkey/ui-web';
 import { sessionAtom, signOutAtom } from '../lib/atoms';
 import { Sidebar } from './Sidebar';
 import { useHostSearch } from '../hooks/useHostSearch';
@@ -24,7 +24,7 @@ function initialsFor(name: string): string {
 // sidebar on a small laptop screen shouldn't have to redo it every sign-in.
 // Wrapped in try/catch: a private-browsing tab or a blocked storage
 // permission should degrade to "always defaults open," not break the page.
-const SIDEBAR_OPEN_KEY = 'jfc-host-portal.sidebar-open';
+const SIDEBAR_OPEN_KEY = 'jfc-host-portal.sidebar-open'; // stored key: kept across the rename
 
 function loadSidebarOpen(): boolean {
   try {
@@ -42,7 +42,7 @@ function loadSidebarOpen(): boolean {
  * the top bar that's left holds only the one thing that doesn't belong in
  * a nav tree — search — plus the KYH/account chrome that was already
  * there. Deliberately not a change to `PortalShell` itself (still used
- * as-is by jfc-admin-portal/jfc-support-portal) — this is a new,
+ * as-is by punch-munkey-admin-portal/punch-munkey-support-portal) — this is a new,
  * host-portal-only shell built from the same design tokens.
  *
  * The sidebar itself slides open/closed (CSS `transform`, see styles.css'

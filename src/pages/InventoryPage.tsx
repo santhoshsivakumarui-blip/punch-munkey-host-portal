@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { Page, PageHeader, Panel, PanelTitle, StatGrid, StatTile, Chip, Button, TextField, Select, EmptyState, Skeleton, useToast } from '@jfc/ui-web';
-import type { ChipTone, SelectOption } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, PanelTitle, StatGrid, StatTile, Chip, Button, TextField, Select, EmptyState, Skeleton, useToast } from '@punch-munkey/ui-web';
+import type { ChipTone, SelectOption } from '@punch-munkey/ui-web';
 import { eventsLoadable, createFnbItemAtom, selectedBusinessEventIdAtom } from '../lib/atoms';
 import { api, paths } from '../lib/api';
 import { showApiError } from '../lib/toastError';

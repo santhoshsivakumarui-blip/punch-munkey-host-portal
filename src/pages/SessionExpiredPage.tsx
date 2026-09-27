@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
-import { Chip, Button } from '@jfc/ui-web';
+import { Chip, Button } from '@punch-munkey/ui-web';
 import { clearExpiredFlagAtom } from '../lib/atoms';
 
-// Idle-timeout landing — same pattern as jfc-admin-portal/jfc-support-portal's
+// Idle-timeout landing — same pattern as punch-munkey-admin-portal/punch-munkey-support-portal's
 // `3k`, minus their "access denied" illustrative half: Host has one role per
 // account, not the operator role/capability model that half is
 // demonstrating, so there's nothing honest to show there.

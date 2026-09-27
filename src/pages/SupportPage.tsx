@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Page, PageHeader, Panel, Button, EmptyState, Skeleton, Chip, MessageBubble, useToast } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, Button, EmptyState, Skeleton, Chip, MessageBubble, useToast } from '@punch-munkey/ui-web';
 import { api, paths } from '../lib/api';
 import { showApiError } from '../lib/toastError';
 

@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react';
 
 /**
  * Injects a production-strength CSP + referrer-policy meta tag into the
- * built `index.html` only — mirrors jfc-admin-portal/jfc-support-portal's
- * identical plugin. See jfc-support-portal/vite.config.ts for the full
+ * built `index.html` only — mirrors punch-munkey-admin-portal/punch-munkey-support-portal's
+ * identical plugin. See punch-munkey-support-portal/vite.config.ts for the full
  * reasoning (dev-server HMR needs `unsafe-eval`/`ws:`; the built static
  * bundle doesn't, and framing-related headers can't be set via <meta> at
  * all, so those three belong at the hosting layer instead).
@@ -25,7 +25,7 @@ function productionSecurityHeaders(): Plugin {
   ].join('; ');
 
   return {
-    name: 'jfc-production-security-headers',
+    name: 'punch-munkey-production-security-headers',
     apply: 'build',
     transformIndexHtml(html) {
       return html.replace(
@@ -42,7 +42,7 @@ export default defineConfig({
   plugins: [react(), productionSecurityHeaders()],
   server: {
     // Pinned, not left to Vite's default-5173-then-increment behavior:
-    // jfc-host-app's "More" tab (app/(host)/(tabs)/more.tsx) hardcodes
+    // punch-munkey-host-app's "More" tab (app/(host)/(tabs)/more.tsx) hardcodes
     // `http://localhost:5173` as its fallback HOST_PORTAL_URL, assuming
     // this app owns that port. Without a fixed port here, whichever of
     // host/support/admin-portal happened to start first claimed 5173 —

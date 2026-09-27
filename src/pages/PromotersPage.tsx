@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { Page, PageHeader, Panel, Chip, DataTable, Skeleton } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, Chip, DataTable, Skeleton } from '@punch-munkey/ui-web';
 import { promotersLoadable } from '../lib/atoms';
 import { useToastOnError } from '../lib/toastError';
 import { formatINR } from '../lib/format';

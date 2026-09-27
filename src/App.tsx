@@ -2,7 +2,7 @@ import { Suspense, lazy, useEffect } from 'react';
 import type { ComponentType, ReactNode } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Skeleton } from '@jfc/ui-web';
+import { Skeleton } from '@punch-munkey/ui-web';
 import { bootstrapSessionAtom, sessionAtom } from './lib/atoms';
 import Layout from './components/Layout';
 import HostLandingPage from './pages/HostLandingPage';
@@ -13,8 +13,8 @@ import InviteAcceptPage from './pages/InviteAcceptPage';
 import SessionExpiredPage from './pages/SessionExpiredPage';
 import NotFoundPage from './pages/NotFoundPage';
 
-/** Suspense fallback for a lazy page chunk — mirrors jfc-admin-portal/
- * jfc-support-portal's identical helper. */
+/** Suspense fallback for a lazy page chunk — mirrors punch-munkey-admin-portal/
+ * punch-munkey-support-portal's identical helper. */
 function PageFallback() {
   return (
     <div style={{ padding: 32, display: 'flex', flexDirection: 'column', gap: 12 }}>
