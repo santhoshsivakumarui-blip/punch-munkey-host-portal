@@ -1,6 +1,6 @@
 /**
  * Token storage — the one thing this portal's auth genuinely does
- * differently from jfc-admin-portal/jfc-support-portal. Those two portals
+ * differently from punch-munkey-admin-portal/punch-munkey-support-portal. Those two portals
  * sit behind identity-service's operator session (httpOnly cookie,
  * `credentials: 'include'`, nothing for the client to hold). Host auth is a
  * different contract: `POST /hosts/apply` (identity-service's
@@ -11,7 +11,7 @@
  * secure-store equivalent (mirrors how little trust the token itself
  * carries: it's a bearer JWT, not a refresh-rotated session).
  */
-const STORAGE_KEY = 'jfc-host-portal:token';
+const STORAGE_KEY = 'jfc-host-portal:token'; // stored key: kept across the rename
 
 export function getToken(): string | null {
   try {
@@ -46,7 +46,7 @@ export function clearToken(): void {
  * application; not otherwise load-bearing for auth, which re-validates OTP
  * server-side regardless of anything cached here.
  */
-const PROFILE_CACHE_KEY = 'jfc-host-portal:last-profile';
+const PROFILE_CACHE_KEY = 'jfc-host-portal:last-profile'; // stored key: kept across the rename
 
 export interface CachedHostProfile {
   phoneE164: string;

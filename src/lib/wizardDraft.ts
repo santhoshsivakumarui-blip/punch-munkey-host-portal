@@ -10,7 +10,7 @@
  * only so the wizard can resume. Review's Publish is real: POST
  * /events/:id/submit then POST /events/:id/publish.
  */
-const DRAFT_KEY = 'jfc-host-portal:event-draft';
+const DRAFT_KEY = 'jfc-host-portal:event-draft'; // stored key: kept across the rename
 
 export type MenuItemCategory = 'food' | 'bar' | 'smoke';
 

@@ -1,12 +1,12 @@
-/* Host-only overrides — layered on top of @jfc/ui-web's tokens.css (a real
+/* Host-only overrides — layered on top of @punch-munkey/ui-web's tokens.css (a real
    workspace dependency, see package.json). Nothing here yet is specific
    enough to Host to avoid generalizing into the shared library; add
    overrides here first, promote to the library once Admin/Support need the
-   same shape too. Mirrors jfc-admin-portal/jfc-support-portal's identical
+   same shape too. Mirrors punch-munkey-admin-portal/punch-munkey-support-portal's identical
    comment. */
 
 /* ── App shell: left sidebar (tree nav) + top bar (search) ────────────────
-   Host-portal's own layout, not a variant of @jfc/ui-web's PortalShell —
+   Host-portal's own layout, not a variant of @punch-munkey/ui-web's PortalShell —
    Admin/Support still use that component's horizontal chrome-nav as-is.
    Reuses the same design tokens (--chrome-*, --paper-*, --r-*) so it reads
    as the same product, just a different shell shape. */
@@ -232,7 +232,7 @@
 }
 
 /* `2k`'s radius slider — a native range input restyled to the pill/thumb
-   look, since no slider component exists in @jfc/ui-web yet
+   look, since no slider component exists in @punch-munkey/ui-web yet
    (08-component-inventory.md's "fewer than three screens, build locally"
    rule — this is the only screen that needs one). */
 .radius-slider {

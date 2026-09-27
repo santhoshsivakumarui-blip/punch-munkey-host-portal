@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
-import { Page, PageHeader, StatGrid, StatTile, Panel, PanelTitle, LedgerRow, Chip, Button, EmptyState, Skeleton } from '@jfc/ui-web';
+import { Page, PageHeader, StatGrid, StatTile, Panel, PanelTitle, LedgerRow, Chip, Button, EmptyState, Skeleton } from '@punch-munkey/ui-web';
 import { payoutsLoadable } from '../lib/atoms';
 import { useToastOnError } from '../lib/toastError';
 import { formatINR } from '../lib/format';

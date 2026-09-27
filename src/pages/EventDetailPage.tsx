@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
-import { Page, PageHeader, Panel, PanelTitle, KvRow, StatTile, StatGrid, Chip, Button, Skeleton, EmptyState, useToast } from '@jfc/ui-web';
-import type { ChipTone } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, PanelTitle, KvRow, StatTile, StatGrid, Chip, Button, Skeleton, EmptyState, useToast } from '@punch-munkey/ui-web';
+import type { ChipTone } from '@punch-munkey/ui-web';
 import { api, paths, eventLiveWsUrl } from '../lib/api';
 import { getToken } from '../lib/session';
 import { pauseSalesAtom, resumeSalesAtom, reopenEventAtom } from '../lib/atoms';
@@ -29,7 +29,7 @@ const SCAN_RESULT_COLOR: Record<string, string> = {
   unknown: 'var(--text-muted)',
 };
 
-// Same reconnect-with-backoff schedule as jfc-host-app's own live dashboard
+// Same reconnect-with-backoff schedule as punch-munkey-host-app's own live dashboard
 // (lib/store.ts) — this portal never had a WS client before this page.
 const RECONNECT_DELAYS_MS = [1000, 2000, 4000, 8000, 15000];
 
@@ -120,7 +120,7 @@ export default function EventDetailPage() {
   }, [id, reloadTick]);
 
   // A dashboard reload IS the "live" refresh — no separate WS payload shape
-  // to merge in, same choice jfc-host-app's own live dashboard makes (its
+  // to merge in, same choice punch-munkey-host-app's own live dashboard makes (its
   // ws.onmessage just calls the same `reload()` its first paint used).
   const wsRef = useRef<WebSocket | null>(null);
   useEffect(() => {

@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
-import { TextField, Button, Chip } from '@jfc/ui-web';
+import { TextField, Button, Chip } from '@punch-munkey/ui-web';
 import { useSignInForm } from '../hooks/useSignInForm';
 
 /**
  * `3d` — sign in. Phone + OTP only, verified against
- * `POST /auth/otp/verify` (the same route jfc-guest-app uses) rather than
+ * `POST /auth/otp/verify` (the same route punch-munkey-guest-app uses) rather than
  * the heavier `/hosts/apply` sign-up needs — a returning host already has
  * a `hosts` row, so there's nothing left to collect. useSignInForm rejects
  * (without creating a session) if the number verifies but isn't a host.

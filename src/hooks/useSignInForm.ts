@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useNavigate } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
-import { useToast } from '@jfc/ui-web';
+import { useToast } from '@punch-munkey/ui-web';
 import { requestOtpAtom, signInWithOtpAtom } from '../lib/atoms';
 import { showApiError } from '../lib/toastError';
 import { signInSchema } from '../schemas/signIn';

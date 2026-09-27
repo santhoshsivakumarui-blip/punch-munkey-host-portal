@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { loadable } from 'jotai/utils';
-import { Page, PageHeader, Panel, PanelTitle, KvRow, StatGrid, StatTile, Select, TextField, Button, Chip, Skeleton, EmptyState, useToast } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, PanelTitle, KvRow, StatGrid, StatTile, Select, TextField, Button, Chip, Skeleton, EmptyState, useToast } from '@punch-munkey/ui-web';
 import { eventsLoadable, taxConfigLoadable, taxConfigAtom, updateTaxConfigAtom, accountingSummaryAtom, selectedBusinessEventIdAtom } from '../lib/atoms';
 import { showApiError, useToastOnError } from '../lib/toastError';
 import { formatINR } from '../lib/format';

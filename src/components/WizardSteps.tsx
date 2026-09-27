@@ -9,8 +9,8 @@ export const WIZARD_STEPS = [
 ] as const;
 
 /** `1g`'s pill step row, generalized across all 5 wizard routes — the RN
- * app's `Stepper` (@jfc/ui-native) doesn't have a web counterpart in
- * @jfc/ui-web yet, so this is a small local component per
+ * app's `Stepper` (@punch-munkey/ui-native) doesn't have a web counterpart in
+ * @punch-munkey/ui-web yet, so this is a small local component per
  * 08-component-inventory.md's own rule ("if a component appears on fewer
  * than three screens... build it locally"). Each pill carries its own
  * check/number badge (matching the mockup's inline badge, not a separate

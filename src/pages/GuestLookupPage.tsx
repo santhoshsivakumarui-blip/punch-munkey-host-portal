@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Page, PageHeader, Chip, ListCard, EmptyState, Skeleton } from '@jfc/ui-web';
-import type { ChipTone } from '@jfc/ui-web';
+import { Page, PageHeader, Chip, ListCard, EmptyState, Skeleton } from '@punch-munkey/ui-web';
+import type { ChipTone } from '@punch-munkey/ui-web';
 import { api, paths } from '../lib/api';
 
 interface PassSearchResult {

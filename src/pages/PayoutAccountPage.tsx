@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
-import { Page, PageHeader, Panel, PanelTitle, TextField, Button, Chip, KvRow, Skeleton, EmptyState, useToast } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, PanelTitle, TextField, Button, Chip, KvRow, Skeleton, EmptyState, useToast } from '@punch-munkey/ui-web';
 import { bankDetailsAtom, bankDetailsLoadable, submitBankDetailsAtom, taxLoadable, payoutsLoadable } from '../lib/atoms';
 import { showApiError, useToastOnError } from '../lib/toastError';
 import { formatINR } from '../lib/format';
 import { api, paths } from '../lib/api';
 
-// Real rates, `@jfc/shared`'s own splitFee() — 05-hard-parts.md §3 ("confirm
+// Real rates, `@punch-munkey/shared`'s own splitFee() — 05-hard-parts.md §3 ("confirm
 // with finance before launch," per that function's own comment). No
 // separate "payment gateway charges" line exists in that formula (the
 // mockup's `8h` shows one) — folded out rather than invented, since there's
 // no real number behind it; GST-on-fee is real and shown instead, which
 // the mockup's illustrative breakdown omits.
 // The rates themselves come from payments-service (GET /hosts/me/fee-rates),
-// which serves @jfc/shared's FEE_RATES: the constants splitFee() actually
+// which serves @punch-munkey/shared's FEE_RATES: the constants splitFee() actually
 // charges with, so what this page says can't drift from what's deducted.
 interface FeeRates {
   platformFee: number;

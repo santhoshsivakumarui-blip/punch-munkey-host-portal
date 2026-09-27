@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { TextField, Button, Chip, Panel, RadioGroup } from '@jfc/ui-web';
+import { TextField, Button, Chip, Panel, RadioGroup } from '@punch-munkey/ui-web';
 import { useHostApplicationForm } from '../hooks/useHostApplicationForm';
 
 // `2c` — sign-up & gov-ID KYC upload. Document upload is real now

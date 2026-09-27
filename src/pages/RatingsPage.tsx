@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { loadable } from 'jotai/utils';
-import { Page, PageHeader, StatGrid, StatTile, Panel, PanelTitle, BarRow, Select, Pagination, Skeleton, EmptyState } from '@jfc/ui-web';
-import type { SelectOption } from '@jfc/ui-web';
+import { Page, PageHeader, StatGrid, StatTile, Panel, PanelTitle, BarRow, Select, Pagination, Skeleton, EmptyState } from '@punch-munkey/ui-web';
+import type { SelectOption } from '@punch-munkey/ui-web';
 import { hostReviewsAtom, eventsLoadable, safetyScoreLoadable, sessionAtom } from '../lib/atoms';
 import { useToastOnError } from '../lib/toastError';
 

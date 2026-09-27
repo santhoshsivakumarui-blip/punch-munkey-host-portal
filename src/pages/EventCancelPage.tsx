@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Page, PageHeader, Panel, PanelTitle, KvRow, ReasonField, TextField, Button, Chip, Skeleton, useToast } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, PanelTitle, KvRow, ReasonField, TextField, Button, Chip, Skeleton, useToast } from '@punch-munkey/ui-web';
 import { cancelEventAtom, postponeEventAtom, eventsLoadable, sessionAtom } from '../lib/atoms';
 import { api, paths } from '../lib/api';
 import { showApiError } from '../lib/toastError';

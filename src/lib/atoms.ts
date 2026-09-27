@@ -323,7 +323,7 @@ export const devicesLoadable = loadable(devicesAtom);
 
 /** `DELETE /devices/:id` — unpairing from the desk, for a device that's
  * lost, stolen, or just no longer needed, without requiring physical
- * access to it (unlike jfc-host-app's own unpair, which runs from the
+ * access to it (unlike punch-munkey-host-app's own unpair, which runs from the
  * paired device itself). Same PIN contract as that path: a `WRONG_PIN`
  * rejection is the only failure that should block a retry; anything else
  * the caller (DevicesPage) surfaces as a generic error and lets the host

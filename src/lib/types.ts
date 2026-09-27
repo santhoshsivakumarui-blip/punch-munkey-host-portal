@@ -1,5 +1,5 @@
 /** Mirrors of the backend response shapes this portal calls — see
- * jfc-services/services/{event,payments,safety,notification,ticketing}-service
+ * punch-munkey-services/services/{event,payments,safety,notification,ticketing}-service
  * for the source of truth. Kept local, same reasoning as every other
  * cross-repo boundary in this platform (no shared workspace package for
  * API types). */

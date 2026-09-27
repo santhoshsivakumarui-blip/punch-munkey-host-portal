@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Button, Chip } from '@jfc/ui-web';
+import { Button, Chip } from '@punch-munkey/ui-web';
 
 // `6a` — host landing page, public marketing. Design handoff calls this out
 // as "SSR for SEO" under Next.js; this is a plain Vite SPA (see

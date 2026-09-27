@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { ToastProvider } from '@jfc/ui-web';
+import { ToastProvider } from '@punch-munkey/ui-web';
 import App from './App';
-import '@jfc/ui-web/tokens.css';
+import '@punch-munkey/ui-web/tokens.css';
 import './styles.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

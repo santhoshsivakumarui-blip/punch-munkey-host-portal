@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Panel, TextField, Button, Select, Chip, useToast } from '@jfc/ui-web';
+import { Panel, TextField, Button, Select, Chip, useToast } from '@punch-munkey/ui-web';
 import { api, paths } from '../lib/api';
 import { showApiError } from '../lib/toastError';
 

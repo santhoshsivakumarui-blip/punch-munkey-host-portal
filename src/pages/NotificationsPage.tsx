@@ -1,6 +1,6 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Page, PageHeader, Panel, Chip, EmptyState, Skeleton, useToast } from '@jfc/ui-web';
-import type { ChipTone } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, Chip, EmptyState, Skeleton, useToast } from '@punch-munkey/ui-web';
+import type { ChipTone } from '@punch-munkey/ui-web';
 import { markNotificationReadAtom, notificationsAtom, notificationsLoadable } from '../lib/atoms';
 import { showApiError, useToastOnError } from '../lib/toastError';
 import type { NotificationItem } from '../lib/types';

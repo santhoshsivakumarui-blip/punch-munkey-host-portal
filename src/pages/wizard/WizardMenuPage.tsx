@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Page, Panel, TextField, Button, Chip, Select, Checkbox, useToast } from '@jfc/ui-web';
+import { Page, Panel, TextField, Button, Chip, Select, Checkbox, useToast } from '@punch-munkey/ui-web';
 import { WizardSteps } from '../../components/WizardSteps';
 import { WizardTopBar } from '../../components/WizardTopBar';
 import { WizardPreviewCard } from '../../components/WizardPreviewCard';

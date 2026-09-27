@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Page, PageHeader, Panel, Chip, ReasonField, Button, EmptyState, Skeleton, useToast } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, Chip, ReasonField, Button, EmptyState, Skeleton, useToast } from '@punch-munkey/ui-web';
 import { reportsLoadable, respondToReportAtom } from '../lib/atoms';
 import { showApiError, useToastOnError } from '../lib/toastError';
 

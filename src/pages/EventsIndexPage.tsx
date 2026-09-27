@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { Page, PageHeader, Panel, Chip, Button, Pagination, EmptyState, Skeleton } from '@jfc/ui-web';
-import type { ChipTone } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, Chip, Button, Pagination, EmptyState, Skeleton } from '@punch-munkey/ui-web';
+import type { ChipTone } from '@punch-munkey/ui-web';
 import { eventsLoadable } from '../lib/atoms';
 import { clearDraft, saveDraft } from '../lib/wizardDraft';
 import { formatINR } from '../lib/format';

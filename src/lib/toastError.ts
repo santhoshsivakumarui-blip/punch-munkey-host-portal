@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useToast } from '@jfc/ui-web';
+import { useToast } from '@punch-munkey/ui-web';
 import { ApiError } from './api';
 
 /** Structural, not `jotai/utils`' own (internal-path) `Loadable<T>` type —
@@ -23,7 +23,7 @@ function messageFor(err: unknown, fallback = 'Something went wrong. Try again.')
 
 /** One place every mutation's catch block calls — an `ApiError` shows its
  * real server message; anything else (a network failure, a thrown
- * non-Error) falls back to `fallback`. Mirrors jfc-host-app's
+ * non-Error) falls back to `fallback`. Mirrors punch-munkey-host-app's
  * `lib/toastError.ts` (same name, same shape) so the pattern reads the
  * same in both the mobile and the web codebase. */
 export function showApiError(toast: ToastLike, err: unknown, fallback = 'Something went wrong. Try again.'): void {

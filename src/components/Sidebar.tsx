@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Icon } from '@jfc/ui-web';
-import type { IconName } from '@jfc/ui-web';
+import { Icon } from '@punch-munkey/ui-web';
+import type { IconName } from '@punch-munkey/ui-web';
 
 interface LeafItem {
   type: 'leaf';
@@ -25,7 +25,7 @@ type TreeItem = LeafItem | BranchItem;
 // actual design — both mockups highlight the same "Requests" sidebar entry
 // with a pending-count badge, despite 06/07's docs having briefly
 // mis-sorted `1h` as a native tab in an earlier pass here; the frame
-// width (1180px, not 390px) settled it — see jfc-host-app/README.md.
+// width (1180px, not 390px) settled it — see punch-munkey-host-app/README.md.
 //
 // "Payouts" and "Business ops" are branches, not leaves — the tree
 // structure this replaces a flat link list with groups genuinely related

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { EmptyState, Page } from '@jfc/ui-web';
+import { EmptyState, Page } from '@punch-munkey/ui-web';
 
 // `5h` — 404, shared pattern with Admin/Support.
 export default function NotFoundPage() {

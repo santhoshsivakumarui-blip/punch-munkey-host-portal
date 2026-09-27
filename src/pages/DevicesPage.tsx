@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { QRCodeSVG } from 'qrcode.react';
-import { Page, PageHeader, Panel, Chip, Button, TextField, EmptyState, DataTable, ConfirmModal, useToast } from '@jfc/ui-web';
+import { Page, PageHeader, Panel, Chip, Button, TextField, EmptyState, DataTable, ConfirmModal, useToast } from '@punch-munkey/ui-web';
 import { pairDeviceAtom, devicesAtom, devicesLoadable, unpairDeviceAtom, createStaffInviteAtom } from '../lib/atoms';
 import { showApiError, useToastOnError } from '../lib/toastError';
 import type { DeviceRecord } from '../lib/types';
@@ -22,7 +22,7 @@ function nextDeviceLabel(devices: DeviceRecord[] | undefined, kind: 'door' | 'ba
  * `2d` — staff device pairing. `POST /devices/pair` (ticketing-service) is
  * real and returns a device + a bearer token. This is the *remote* pairing
  * path — the token shown below is meant to be copied onto a staff phone
- * that pastes it into jfc-host-app's `(host)/pair-device.tsx` ("Or, paste a
+ * that pastes it into punch-munkey-host-app's `(host)/pair-device.tsx` ("Or, paste a
  * pairing token from the desk"), which resolves its own kind/label via
  * `GET /devices/me` and never needs to sign in as the host itself. host-app
  * also offers the opposite path — self-pairing while already signed in on
