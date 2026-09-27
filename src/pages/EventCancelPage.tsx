@@ -128,8 +128,16 @@ export default function EventCancelPage() {
       <Page>
         <PageHeader title={event?.title ?? `Event ${id ?? ''}`} subtitle="Postpone first. Cancel only if you must." />
         <Panel pad style={{ maxWidth: 560 }}>
-          <Chip tone="warning">{action === 'postpone' ? 'Postponed' : 'Cancelled'} — {action === 'cancel' ? 'refunds dispatching' : 'guests not yet notified automatically'}</Chip>
-          <Button variant="outline" style={{ marginTop: 12 }} onClick={() => navigate('/events')}>Back to events</Button>
+          <Chip tone="warning">{action === 'postpone' ? 'Postponed' : 'Cancelled'} — {action === 'cancel' ? 'refunds dispatching' : 'guests notified'}</Chip>
+          {action === 'postpone' ? (
+            <p className="text text-body-s tone-secondary" style={{ margin: '12px 0 0' }}>
+              Doors, the end time and the address reveal moved with the date. Guests keep their pass for the new date or take a
+              full refund from the app. Sales stay closed until you reopen them from the event page.
+            </p>
+          ) : null}
+          <Button variant="outline" style={{ marginTop: 12 }} onClick={() => navigate(action === 'postpone' && id ? `/events/${id}` : '/events')}>
+            {action === 'postpone' ? 'Back to the event' : 'Back to events'}
+          </Button>
         </Panel>
       </Page>
     );

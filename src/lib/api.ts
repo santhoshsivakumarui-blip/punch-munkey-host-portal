@@ -225,6 +225,7 @@ export const paths = {
   eventPublish: (id: string) => `/api/event-service/events/${id}/publish`,
   eventCancel: (id: string) => `/api/event-service/events/${id}/cancel`,
   eventPostpone: (id: string) => `/api/event-service/events/${id}/postpone`,
+  eventReopen: (id: string) => `/api/event-service/events/${id}/reopen`,
   eventPauseSales: (id: string) => `/api/event-service/events/${id}/pause-sales`,
   eventResumeSales: (id: string) => `/api/event-service/events/${id}/resume-sales`,
   eventGuests: (id: string) => `/api/event-service/events/${id}/guests`,

@@ -10,6 +10,7 @@ import type {
   DisputeRecord,
   EventRecord,
   GuestRow,
+  GuestRatio,
   HostDocument,
   HostDocumentType,
   HostReviewsResponse,
@@ -235,7 +236,7 @@ export const transfersLoadable = loadable(transfersAtom);
  * the id changes (the calling page passes a fresh `eventId` param). */
 export function eventGuestsAtom(eventId: string) {
   return atomWithRefresh<
-    Promise<{ guests: GuestRow[]; screening: { minRating: number | null; requiresApproval: boolean; minRatioWomen: number | null }; capacity: number; capacityHeld: number }>
+    Promise<{ guests: GuestRow[]; screening: { minRating: number | null; requiresApproval: boolean; minRatioWomen: number | null }; capacity: number; capacityHeld: number; ratio?: GuestRatio }>
   >(async () => api.get(paths.eventGuests(eventId)));
 }
 
@@ -348,6 +349,9 @@ export const cancelEventAtom = atom(null, async (_get, _set, input: { id: string
 export const postponeEventAtom = atom(null, async (_get, _set, input: { id: string; newDoorsAt: string; reason: string }) =>
   api.post(paths.eventPostpone(input.id), { newDoorsAt: input.newDoorsAt, reason: input.reason }),
 );
+
+/** After a postponement: back on sale for the new date. */
+export const reopenEventAtom = atom(null, async (_get, _set, id: string) => api.post(paths.eventReopen(id)));
 
 /** `POST /events/:id/pause-sales` / `/resume-sales` — `2n`'s "Pause sales"
  * action, real on both ends: ticketing-service's purchase route checks

@@ -5,7 +5,7 @@ import { Page, PageHeader, Panel, PanelTitle, KvRow, StatTile, StatGrid, Chip, B
 import type { ChipTone } from '@jfc/ui-web';
 import { api, paths, eventLiveWsUrl } from '../lib/api';
 import { getToken } from '../lib/session';
-import { pauseSalesAtom, resumeSalesAtom } from '../lib/atoms';
+import { pauseSalesAtom, resumeSalesAtom, reopenEventAtom } from '../lib/atoms';
 import { showApiError } from '../lib/toastError';
 import { formatINR } from '../lib/format';
 import type { EventRecord, EventState } from '../lib/types';
@@ -90,6 +90,8 @@ export default function EventDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const [reloadTick, setReloadTick] = useState(0);
   const [pausing, setPausing] = useState(false);
+  const [reopening, setReopening] = useState(false);
+  const reopenEvent = useSetAtom(reopenEventAtom);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [live, setLive] = useState(false);
 
@@ -169,6 +171,20 @@ export default function EventDetailPage() {
     };
   }, [id]);
 
+  async function reopen() {
+    if (!id || reopening) return;
+    setReopening(true);
+    try {
+      await reopenEvent(id);
+      toast.show('Back on sale for the new date.', { tone: 'positive' });
+      setReloadTick((t) => t + 1);
+    } catch (err) {
+      showApiError(toast, err, 'Could not reopen sales.');
+    } finally {
+      setReopening(false);
+    }
+  }
+
   async function toggleSalesPaused() {
     if (!id || !dashboard || pausing) return;
     setPausing(true);
@@ -227,6 +243,9 @@ export default function EventDetailPage() {
               <Button variant={dashboard.event.salesPaused ? 'primary' : 'outline-danger'} disabled={pausing} onClick={toggleSalesPaused}>
                 {pausing ? 'Working…' : dashboard.event.salesPaused ? 'Resume sales' : 'Pause sales'}
               </Button>
+            ) : null}
+            {event.state === 'postponed' ? (
+              <Button variant="primary" disabled={reopening} onClick={reopen}>{reopening ? 'Working…' : 'Reopen sales'}</Button>
             ) : null}
             {canCancelOrPostpone ? (
               <Button variant="outline-danger" onClick={() => navigate(`/events/${id}/cancel`)}>Cancel / postpone</Button>

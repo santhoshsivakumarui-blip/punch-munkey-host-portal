@@ -249,6 +249,21 @@ export interface GuestRow {
   rating: string | null;
   state: string;
   scannedAt: string | null;
+  /** The guest's onboarding profile, self-declared; null = not filled in. */
+  preferredName: string | null;
+  gender: 'woman' | 'man' | 'non_binary' | null;
+  attendingAs: 'couple' | 'solo' | null;
+  /** For the host's judgement, never auto-declined: 'solo_man', 'profile_incomplete'. */
+  flags: string[];
+}
+
+/** Live passes by holders' self-declared gender vs. the women-ratio rule. */
+export interface GuestRatio {
+  minRequired: string | number | null;
+  women: number;
+  others: number;
+  /** Most passes anyone other than women can hold (null = no rule). */
+  othersCap: number | null;
 }
 
 /** `GET /events/:id/host-threads` (event-service) — one row per guest who's

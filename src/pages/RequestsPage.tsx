@@ -15,7 +15,37 @@ import {
   transfersLoadable,
 } from '../lib/atoms';
 import { showApiError, useToastOnError } from '../lib/toastError';
-import type { GuestRow, HostThreadMessage, HostThreadSummary, PendingTransfer } from '../lib/types';
+import type { GuestRatio, GuestRow, HostThreadMessage, HostThreadSummary, PendingTransfer } from '../lib/types';
+
+const GENDER_LABEL: Record<string, string> = { woman: 'Woman', man: 'Man', non_binary: 'Non-binary' };
+const FLAG_LABEL: Record<string, string> = { solo_man: 'Solo, man', profile_incomplete: 'No profile' };
+
+/** `1h`'s room mix: live passes by holders' self-declared gender, against
+ * the women-ratio rule. ticketing-service refuses sales past the cap
+ * (RATIO_LIMIT_REACHED), so this shows where the room stands, not a warning
+ * the host has to act on. */
+function RoomMix({ ratio }: { ratio: GuestRatio }) {
+  const total = ratio.women + ratio.others;
+  const womenPct = total > 0 ? Math.round((ratio.women / total) * 100) : 0;
+  return (
+    <Panel pad>
+      <div style={{ font: '500 14px var(--font-body)', marginBottom: 8 }}>Room mix</div>
+      <div style={{ height: 8, borderRadius: 999, background: 'var(--paper-tint)', overflow: 'hidden', display: 'flex' }}>
+        <div style={{ width: `${womenPct}%`, background: 'var(--amber-base)' }} />
+      </div>
+      <div className="text text-body-s tone-secondary" style={{ marginTop: 8 }}>
+        {total > 0 ? `${womenPct}% women · ${ratio.women} women, ${ratio.others} others` : 'No passes held yet.'}
+      </div>
+      {ratio.othersCap !== null ? (
+        <div className="text text-body-s tone-secondary" style={{ marginTop: 4 }}>
+          {ratio.others >= ratio.othersCap
+            ? 'Only women can book now: the places for others are taken.'
+            : `${ratio.othersCap - ratio.others} of ${ratio.othersCap} places left for others.`}
+        </div>
+      ) : null}
+    </Panel>
+  );
+}
 
 type Tab = 'transfers' | 'screening' | 'messages';
 
@@ -59,7 +89,7 @@ export default function RequestsPage() {
     () =>
       activeEventId
         ? loadable(eventGuestsAtom(activeEventId))
-        : atom({ state: 'hasData' as const, data: { guests: [], screening: { minRating: null, requiresApproval: false, minRatioWomen: null }, capacity: 0, capacityHeld: 0 } }),
+        : atom({ state: 'hasData' as const, data: { guests: [] as GuestRow[], screening: { minRating: null, requiresApproval: false, minRatioWomen: null }, capacity: 0, capacityHeld: 0, ratio: undefined as GuestRatio | undefined } }),
     [activeEventId],
   );
   const guestsLoadableValue = useAtomValue(guestsLoadableAtom);
@@ -300,7 +330,20 @@ export default function RequestsPage() {
                       <span className="mono" style={{ width: 32, height: 32, flex: 'none', borderRadius: 999, background: 'var(--paper-tint)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11 }}>
                         {g.handle ? g.handle.slice(0, 4) : '····'}
                       </span>
-                      <span style={{ fontWeight: 500 }}>{g.handle ?? 'Unclaimed pass'}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <span style={{ fontWeight: 500 }}>
+                          {g.handle ?? 'Unclaimed pass'}
+                          {g.preferredName ? <span className="tone-secondary" style={{ fontWeight: 400 }}>{` · ${g.preferredName}`}</span> : null}
+                        </span>
+                        {/* Self-declared at onboarding. Flags are for the
+                            host's judgement; nothing is auto-declined. */}
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                          {g.gender ? <Chip tone="muted">{`${GENDER_LABEL[g.gender]}${g.attendingAs ? ` · ${g.attendingAs === 'couple' ? 'couple' : 'solo'}` : ''}`}</Chip> : null}
+                          {g.flags.map((f) => (
+                            <Chip key={f} tone="warning">{FLAG_LABEL[f] ?? f}</Chip>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   ),
                 },
@@ -373,12 +416,7 @@ export default function RequestsPage() {
                     />
                   </div>
                 </Panel>
-                {/* `1h`'s room-mix percentage bar is deliberately absent —
-                    it would need a holder gender field this schema has
-                    never had (ratio screening's own enforcement gap, see
-                    ticketing-service's purchase route comment on why
-                    min_ratio_women is checked nowhere); a bar with no real
-                    number behind it would be worse than not showing one. */}
+                {guestsLoadableValue.data.ratio ? <RoomMix ratio={guestsLoadableValue.data.ratio} /> : null}
               </>
             ) : null}
             {guestsLoadableValue.state === 'hasData' ? (
