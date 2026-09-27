@@ -31,7 +31,7 @@ jobs:
           repository: santhoshsivakumarui-blip/punch-munkey-ui-web
           path: punch-munkey-ui-web
           token: ${{ secrets.SIBLING_REPOS_TOKEN || github.token }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "20"
       - run: corepack enable
