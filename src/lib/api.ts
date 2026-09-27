@@ -206,6 +206,19 @@ export const paths = {
   event: (id: string) => `/api/event-service/events/${id}`,
   /** Exact address + gate code, stored encrypted by location-service.
    * PUT to save, GET (owning host only) to read back. */
+  /** Guests scanned in at this host's earlier nights (count), for the wizard's "Announce to". */
+  hostsMePastGuests: '/api/event-service/hosts/me/past-guests',
+  /** Host's single continuous support conversation (compliance-service). */
+  meSupportThread: '/api/compliance-service/me/support/thread',
+  meSupportMessages: '/api/compliance-service/me/support/messages',
+  /** Platform fee / TDS / GST-on-fee rates, as fractions (payments-service). */
+  hostsMeFeeRates: '/api/payments-service/hosts/me/fee-rates',
+  /** Ticket tiers (ticketing-service): GET list, POST add. */
+  eventTiers: (id: string) => `/api/ticketing-service/events/${id}/tiers`,
+  /** One tier: PATCH edit, DELETE stop selling. */
+  eventTier: (id: string, tierId: string) => `/api/ticketing-service/events/${id}/tiers/${tierId}`,
+  /** Whole menu + alcohol cap (fnb-service). GET to load, PUT to save all of it. */
+  eventMenu: (id: string) => `/api/fnb-service/events/${id}/fnb/menu`,
   eventLocation: (id: string) => `/api/event-service/events/${id}/location`,
   eventDashboard: (id: string) => `/api/event-service/events/${id}/dashboard`,
   eventSubmit: (id: string) => `/api/event-service/events/${id}/submit`,
@@ -230,7 +243,7 @@ export const paths = {
   hostsMeInvites: '/api/ticketing-service/hosts/me/invites',
   invite: (token: string) => `/api/ticketing-service/invites/${token}`,
   inviteAccept: (token: string) => `/api/ticketing-service/invites/${token}/accept`,
-  /** `?q=` — box-office/guest lookup by handle, phone, or pass code, scoped to this host's own events (ticketing-service's hostPasses.ts + lib/searchIndex.ts). */
+  /** `?q=` — box-office/guest lookup by handle or pass code, scoped to this host's own events (ticketing-service's hostPasses.ts + lib/searchIndex.ts). */
   hostsMePassesSearch: (q: string) => `/api/ticketing-service/hosts/me/passes/search?q=${encodeURIComponent(q)}`,
 
   // fnb-service. eventFnbStock is staff-only (real stock counts + billing

@@ -140,7 +140,7 @@ export default function EventDetailPage() {
       ws.onmessage = (msg) => {
         try {
           const payload = JSON.parse(String(msg.data));
-          if (payload.type === 'event.state' || payload.type === 'guest.declined') {
+          if (['event.state', 'guest.declined', 'scan', 'incident'].includes(payload.type)) {
             setReloadTick((t) => t + 1);
           }
         } catch {

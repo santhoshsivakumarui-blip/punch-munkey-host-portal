@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -6,23 +6,15 @@ import { Page, Panel, TextField, Button, useToast } from '@jfc/ui-web';
 import { WizardSteps } from '../../components/WizardSteps';
 import { WizardTopBar } from '../../components/WizardTopBar';
 import { WizardPreviewCard } from '../../components/WizardPreviewCard';
-import { SegmentedControl } from '../../components/SegmentedControl';
-import { locationSchema, EVENT_TYPE_DEFAULTS } from '../../schemas/wizard';
+import { locationSchema, EVENT_TYPE_DEFAULTS, REVEAL_HOURS_BEFORE_DOORS } from '../../schemas/wizard';
 import type { LocationFormValues } from '../../schemas/wizard';
 import { loadDraft, saveDraft } from '../../lib/wizardDraft';
 import { api, paths } from '../../lib/api';
 import { showApiError } from '../../lib/toastError';
 import type { EventRecord } from '../../lib/types';
 
-const UNLOCK_OPTIONS = [
-  { value: '4h', label: '4h before' },
-  { value: 'on_payment', label: 'On payment' },
-  { value: 'custom', label: 'Custom' },
-] as const;
-type UnlockMode = (typeof UNLOCK_OPTIONS)[number]['value'];
-
 /**
- * `2k` — wizard step 2, location & reveal radius. This step's submit is
+ * `2k` — wizard step 2, location & reveal. This step's submit is
  * where the real event actually gets created: `POST /events`
  * (event-service/src/routes/hostEvents.ts) needs venue info in the same
  * call as basics, and this is the first point the wizard has both. Once
@@ -35,21 +27,50 @@ type UnlockMode = (typeof UNLOCK_OPTIONS)[number]['value'];
  * `addressLine` and `gateCode` are saved with `PUT /events/:id/location`
  * right after the event exists: event-service hands them straight to
  * location-service, which stores them encrypted, and guests only see them
- * from the reveal time on (GET /events/:id/address). `radiusKm` and the
- * reveal window stay in the local draft only: `revealAt` is computed
- * server-side as `doorsAt - 4h`, fixed, not host-configurable, and there's
- * no geofence-radius column.
+ * from the reveal time on (GET /events/:id/address). The reveal time isn't a
+ * setting: it's always four hours before doors (`revealAt = doorsAt - 4h`,
+ * computed server-side), so this step states it rather than offering
+ * options that wouldn't change anything.
+ *
+ * The exact address and gate code never go into this browser's storage.
+ * The wizard draft saves them blank; reopening this step for an event that
+ * already exists loads them from the server (GET /events/:id/location).
  */
 export default function WizardLocationPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const draft = loadDraft();
   const [submitting, setSubmitting] = useState(false);
-  const [unlockMode, setUnlockMode] = useState<UnlockMode>(draft.location?.revealHoursBefore === 4 || !draft.location ? '4h' : 'custom');
   const form = useForm<LocationFormValues>({
     resolver: yupResolver(locationSchema),
-    defaultValues: draft.location ?? { venueName: '', area: '', addressLine: '', gateCode: '', revealHoursBefore: 4, radiusKm: 2.4 },
+    defaultValues: {
+      venueName: draft.location?.venueName ?? '',
+      area: draft.location?.area ?? '',
+      addressLine: '',
+      gateCode: '',
+    },
   });
+
+  // The address lives only on the server; fetch it back when editing.
+  useEffect(() => {
+    if (!draft.eventId) return;
+    let cancelled = false;
+    api
+      .get<{ addressLine: string | null; gateCode: string | null }>(paths.eventLocation(draft.eventId))
+      .then((loc) => {
+        if (cancelled) return;
+        if (loc.addressLine) form.setValue('addressLine', loc.addressLine);
+        if (loc.gateCode) form.setValue('gateCode', loc.gateCode);
+      })
+      .catch(() => {
+        /* nothing saved yet, or not reachable: the host can re-enter it */
+      });
+    return () => {
+      cancelled = true;
+    };
+    // Load once per event; `form` and the draft object are stable enough here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft.eventId]);
 
   async function onSubmit(values: LocationFormValues) {
     if (submitting) return;
@@ -99,7 +120,7 @@ export default function WizardLocationPage() {
       // Saved every time this step is submitted, so going back and editing
       // the address updates the stored (encrypted) copy too.
       await api.put(paths.eventLocation(eventId), { addressLine: values.addressLine, gateCode: values.gateCode });
-      saveDraft({ location: values, eventId, eventCode });
+      saveDraft({ location: { ...values, addressLine: '', gateCode: '' }, eventId, eventCode });
       navigate('/events/new/menu');
     } catch (err) {
       showApiError(toast, err, 'Could not save this event.');
@@ -109,17 +130,11 @@ export default function WizardLocationPage() {
   }
 
   function onSaveDraft() {
-    saveDraft({ location: form.getValues() });
-  }
-
-  function onUnlockChange(mode: UnlockMode) {
-    setUnlockMode(mode);
-    if (mode === '4h') form.setValue('revealHoursBefore', 4, { shouldValidate: true });
-    else if (mode === 'on_payment') form.setValue('revealHoursBefore', 1, { shouldValidate: true });
+    // Never the exact address: that's saved on the server by "Next".
+    saveDraft({ location: { ...form.getValues(), addressLine: '', gateCode: '' } });
   }
 
   const live = form.watch();
-  const radiusPercent = ((live.radiusKm - 1) / (5 - 1)) * 100;
 
   return (
     <Page>
@@ -135,38 +150,13 @@ export default function WizardLocationPage() {
       <form onSubmit={form.handleSubmit(onSubmit)} style={{ marginTop: 18 }}>
         <div className="wizard-layout" style={{ alignItems: 'stretch' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div className="radius-visual">
-              <div
-                className="radius-visual-ring"
-                style={{ width: `${140 + radiusPercent}px`, height: `${140 + radiusPercent}px` }}
-              >
-                <span className="radius-visual-pin" />
+            <Panel pad style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <span className="text text-display-s">What guests see</span>
+              <div className="text text-body-s tone-secondary">
+                Before the reveal, only the area: <span className="tone-primary">{live.area || 'not set yet'}</span>.
               </div>
-              <div style={{ position: 'absolute', left: 16, bottom: 16, padding: '9px 14px', borderRadius: 999, background: 'var(--paper-card)', boxShadow: 'var(--shadow-md)' }}>
-                <span className="text text-numeral-s">{live.radiusKm.toFixed(1)} km · what guests see</span>
-              </div>
-              <div style={{ position: 'absolute', left: 16, top: 16, padding: '10px 14px', borderRadius: 16, background: 'var(--paper-card)', boxShadow: 'var(--shadow-md)' }}>
-                <div className="text text-body-s" style={{ fontWeight: 500 }}>Public preview</div>
-                <div className="text text-caption tone-secondary">Circle centre is randomised each load</div>
-              </div>
-            </div>
-
-            <Panel pad>
-              <span className="text text-body-s" style={{ fontWeight: 500 }}>Public radius</span>
-              <input
-                type="range"
-                className="radius-slider"
-                min={1}
-                max={5}
-                step={0.1}
-                value={live.radiusKm}
-                onChange={(e) => form.setValue('radiusKm', Number(e.target.value), { shouldValidate: true })}
-                style={{ marginTop: 10 }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-                <span className="text text-caption tone-secondary">1 km</span>
-                <span className="text text-numeral-s" style={{ color: 'var(--amber-dark)' }}>{live.radiusKm.toFixed(1)} km</span>
-                <span className="text text-caption tone-secondary">5 km</span>
+              <div className="text text-body-s tone-secondary">
+                The exact address and door notes unlock {REVEAL_HOURS_BEFORE_DOORS} hours before doors, and only for guests holding a valid pass.
               </div>
             </Panel>
           </div>
@@ -185,16 +175,11 @@ export default function WizardLocationPage() {
 
             <Panel pad>
               <span className="text text-body-s" style={{ fontWeight: 500 }}>When does it unlock?</span>
-              <div style={{ marginTop: 10 }}>
-                <SegmentedControl value={unlockMode} onChange={onUnlockChange} options={[...UNLOCK_OPTIONS]} />
-              </div>
-              {unlockMode === 'custom' ? (
-                <div style={{ marginTop: 11 }}>
-                  <TextField label="Hours before doors" type="number" min={1} max={24} error={form.formState.errors.revealHoursBefore?.message} {...form.register('revealHoursBefore', { valueAsNumber: true })} />
-                </div>
-              ) : null}
+              <p className="text text-body-s" style={{ marginTop: 6, marginBottom: 0 }}>
+                {REVEAL_HOURS_BEFORE_DOORS} hours before doors, for every event.
+              </p>
               <Panel variant="positive" pad style={{ marginTop: 11 }}>
-                <span className="text text-body-s">Guests get a notification when the address unlocks. Unclaimed passes stay locked regardless.</span>
+                <span className="text text-body-s">Pass holders get a notification when the address unlocks. Guests without a valid pass never see it.</span>
               </Panel>
             </Panel>
 

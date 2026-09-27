@@ -54,6 +54,7 @@ const ReportsPage = lazy(() => import('./pages/ReportsPage'));
 const RatingsPage = lazy(() => import('./pages/RatingsPage'));
 const PromotersPage = lazy(() => import('./pages/PromotersPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const SupportPage = lazy(() => import('./pages/SupportPage'));
 const DevicesPage = lazy(() => import('./pages/DevicesPage'));
 const InventoryPage = lazy(() => import('./pages/InventoryPage'));
 const InventoryItemDetailPage = lazy(() => import('./pages/InventoryItemDetailPage'));
@@ -132,6 +133,7 @@ function AppRoutes() {
         <Route path="ratings" element={lazyElement(RatingsPage)} />
         <Route path="promoters" element={lazyElement(PromotersPage)} />
         <Route path="notifications" element={lazyElement(NotificationsPage)} />
+        <Route path="support" element={lazyElement(SupportPage)} />
         <Route path="devices" element={lazyElement(DevicesPage)} />
         <Route path="inventory" element={<RequireOrganisation>{lazyElement(InventoryPage)}</RequireOrganisation>} />
         <Route path="inventory/items/:id" element={<RequireOrganisation>{lazyElement(InventoryItemDetailPage)}</RequireOrganisation>} />

@@ -3,6 +3,7 @@ import { Panel, Chip, Button } from '@jfc/ui-web';
 import { sessionAtom } from '../lib/atoms';
 import type { BasicsFormValues, LocationFormValues, StaffFormValues } from '../schemas/wizard';
 import type { MenuItemDraft } from '../lib/wizardDraft';
+import { REVEAL_HOURS_BEFORE_DOORS } from '../schemas/wizard';
 
 export interface WizardPreviewData {
   basics?: Partial<BasicsFormValues>;
@@ -75,8 +76,8 @@ export function WizardPreviewCard({ basics, location, menu, staff }: WizardPrevi
           {basics?.priceRupees ? <Chip tone="accent">₹{basics.priceRupees}+</Chip> : null}
           {user?.kyhState === 'verified' ? <Chip tone="positive">Verified host</Chip> : null}
           {basics?.capacity ? <Chip tone="dark">{basics.capacity} capacity</Chip> : null}
-          {staff?.ratioRule ? <Chip tone="dark">{staff.ratioRule}</Chip> : null}
-          {location?.revealHoursBefore ? <Chip tone="dark">Address in {location.revealHoursBefore}h</Chip> : null}
+          {staff?.minWomenPercent ? <Chip tone="dark">At least {staff.minWomenPercent}% women</Chip> : null}
+          {location?.area ? <Chip tone="dark">Address {REVEAL_HOURS_BEFORE_DOORS}h before doors</Chip> : null}
         </div>
 
         <Button variant="primary" block style={{ marginTop: 14 }}>
@@ -84,7 +85,7 @@ export function WizardPreviewCard({ basics, location, menu, staff }: WizardPrevi
         </Button>
       </Panel>
 
-      {location?.venueName || staff?.doorStaff || menu?.items?.length ? (
+      {location?.venueName || staff?.members?.length || menu?.items?.length ? (
         <Panel pad style={{ marginTop: 12 }}>
           <span className="text text-overline tone-secondary">Internal only · not shown to guests</span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
@@ -96,8 +97,16 @@ export function WizardPreviewCard({ basics, location, menu, staff }: WizardPrevi
                 Menu · <span className="tone-primary">{menu.items.length} item{menu.items.length === 1 ? '' : 's'}</span>, alcohol cap {menu.alcoholCapPerGuest}/guest
               </div>
             ) : null}
-            {staff?.doorStaff ? (
-              <div className="text text-body-s tone-secondary">Door staff · <span className="tone-primary">{staff.doorStaff}</span></div>
+            {staff?.members && staff.members.length > 0 ? (
+              <div className="text text-body-s tone-secondary">
+                Staff ·{' '}
+                <span className="tone-primary">
+                  {staff.members
+                    .filter((m) => m && m.name)
+                    .map((m) => `${m.name} (${m.role})`)
+                    .join(', ')}
+                </span>
+              </div>
             ) : null}
           </div>
         </Panel>

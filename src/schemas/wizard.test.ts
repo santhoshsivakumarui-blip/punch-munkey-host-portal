@@ -51,27 +51,30 @@ describe('EVENT_TYPE_DEFAULTS', () => {
 });
 
 describe('locationSchema', () => {
-  const validLocation = { venueName: 'Terrace Rooftop', area: 'HSR Layout', addressLine: '412, 9th Main', gateCode: '', revealHoursBefore: 4, radiusKm: 2.4 };
+  const validLocation = { venueName: 'Terrace Rooftop', area: 'HSR Layout', addressLine: '412, 9th Main', gateCode: '' };
 
   it('accepts a fully-filled valid form', async () => {
     await expect(locationSchema.validate(validLocation)).resolves.toBeTruthy();
   });
 
-  it('rejects a reveal window outside 1-24 hours', async () => {
-    await expect(locationSchema.validate({ ...validLocation, revealHoursBefore: 0 })).rejects.toThrow();
-    await expect(locationSchema.validate({ ...validLocation, revealHoursBefore: 25 })).rejects.toThrow();
-  });
-
-  it('rejects a radius outside 1-5 km', async () => {
-    await expect(locationSchema.validate({ ...validLocation, radiusKm: 0.5 })).rejects.toThrow();
-    await expect(locationSchema.validate({ ...validLocation, radiusKm: 6 })).rejects.toThrow();
+  it('requires the exact address, since guests need it at the reveal', async () => {
+    await expect(locationSchema.validate({ ...validLocation, addressLine: '' })).rejects.toThrow(/exact door/);
   });
 });
 
 describe('staffSchema', () => {
-  it('requires both fields non-blank', async () => {
-    await expect(staffSchema.validate({ doorStaff: 'Rahul', ratioRule: '2 couples : 1 stag' })).resolves.toBeTruthy();
-    await expect(staffSchema.validate({ doorStaff: '', ratioRule: '2 couples : 1 stag' })).rejects.toThrow();
-    await expect(staffSchema.validate({ doorStaff: 'Rahul', ratioRule: '' })).rejects.toThrow();
+  it('accepts named staff with at least one person on the door', async () => {
+    await expect(staffSchema.validate({ members: [{ name: 'Rahul', role: 'door' }], minWomenPercent: 50 })).resolves.toBeTruthy();
+    await expect(staffSchema.validate({ members: [{ name: 'Rahul', role: 'door' }, { name: 'Asha', role: 'bar' }], minWomenPercent: 0 })).resolves.toBeTruthy();
+  });
+
+  it('rejects blank names, no staff, or nobody on the door', async () => {
+    await expect(staffSchema.validate({ members: [{ name: '', role: 'door' }], minWomenPercent: 0 })).rejects.toThrow();
+    await expect(staffSchema.validate({ members: [], minWomenPercent: 0 })).rejects.toThrow();
+    await expect(staffSchema.validate({ members: [{ name: 'Asha', role: 'bar' }], minWomenPercent: 0 })).rejects.toThrow(/door/);
+  });
+
+  it('keeps the ratio within 0-100%', async () => {
+    await expect(staffSchema.validate({ members: [{ name: 'Rahul', role: 'door' }], minWomenPercent: 120 })).rejects.toThrow();
   });
 });

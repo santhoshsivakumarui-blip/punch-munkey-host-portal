@@ -10,7 +10,6 @@ interface PassSearchResult {
   eventId: string;
   eventTitle: string;
   holderHandle: string;
-  holderPhoneMasked: string | null;
   state: string;
   purchasedAt: string;
 }
@@ -26,13 +25,10 @@ const STATE_TONE: Record<string, ChipTone> = {
 
 /**
  * Box-office/guest lookup — find a pass for one of this host's own events
- * by the holder's handle, phone, or the pass code itself. A capability this
+ * by the holder's handle or the pass code. A capability this
  * portal had nowhere before (see ticketing-service's hostPasses.ts +
  * lib/searchIndex.ts for the Elasticsearch-backed query and for why the
- * phone is searchable but always shown masked here — never the full
- * number). Deliberately no client-side fallback the way EventsIndexPage's
- * search box has one: there's no "all passes" already loaded in this portal
- * to fall back to, so a query only ever reflects the live server search.
+ * Not by phone number: guest phones are not visible to hosts at all.
  */
 export default function GuestLookupPage() {
   const navigate = useNavigate();
@@ -75,12 +71,12 @@ export default function GuestLookupPage() {
 
   return (
     <Page>
-      <PageHeader title="Guest lookup" subtitle="Find a pass for one of your own events — by handle, phone, or pass code." />
+      <PageHeader title="Guest lookup" subtitle="Find a pass for one of your own events — by guest handle or pass code." />
 
       <input
         type="search"
         className="data-table-search"
-        placeholder="Search by handle, phone, or pass code…"
+        placeholder="Search by guest handle or pass code…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         aria-label="Search guests and passes"
@@ -89,7 +85,7 @@ export default function GuestLookupPage() {
       />
 
       {!query.trim() ? (
-        <EmptyState icon="search" title="Find a guest" body="Type a handle, phone number, or pass code to search your own events." />
+        <EmptyState icon="search" title="Find a guest" body="Type a guest handle or pass code to search your own events." />
       ) : loading && results === null ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <Skeleton height={56} radius={12} />
@@ -98,7 +94,7 @@ export default function GuestLookupPage() {
       ) : error ? (
         <EmptyState icon="alert" title="Couldn't search" body={error} />
       ) : results && results.length === 0 ? (
-        <EmptyState icon="search" title="No matches" body="Try a different handle, phone number, or pass code." />
+        <EmptyState icon="search" title="No matches" body="Try a different handle or pass code." />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {(results ?? []).map((r) => (
@@ -111,7 +107,7 @@ export default function GuestLookupPage() {
                   <Chip tone={STATE_TONE[r.state] ?? 'muted'}>{r.state.replace('_', ' ')}</Chip>
                 </div>
               }
-              sub={`${r.code} · ${r.eventTitle}${r.holderPhoneMasked ? ` · ${r.holderPhoneMasked}` : ''}`}
+              sub={`${r.code} · ${r.eventTitle}`}
             />
           ))}
         </div>

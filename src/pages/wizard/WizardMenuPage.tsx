@@ -1,43 +1,81 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { Page, Panel, TextField, Button, Chip } from '@jfc/ui-web';
+import { useEffect, useState } from 'react';
+import { Page, Panel, TextField, Button, Chip, Select, Checkbox, useToast } from '@jfc/ui-web';
 import { WizardSteps } from '../../components/WizardSteps';
 import { WizardTopBar } from '../../components/WizardTopBar';
 import { WizardPreviewCard } from '../../components/WizardPreviewCard';
+import { TiersPanel } from '../../components/TiersPanel';
 import { loadDraft, saveDraft } from '../../lib/wizardDraft';
-import type { MenuItemDraft } from '../../lib/wizardDraft';
+import type { MenuItemCategory, MenuItemDraft } from '../../lib/wizardDraft';
+import { api, paths } from '../../lib/api';
+import { showApiError } from '../../lib/toastError';
 
-// `1g` — wizard step 3, regional menu builder. Each region has its own
-// alcohol serving cap per guest — `05-hard-parts.md` territory; this page
-// just captures the number, the rule itself is enforced server-side.
-// Local-draft-only: `events` has no per-item menu table wired to a create
-// endpoint (fnb-service's `fnbItems` is stock-correction/read-only from
-// this side — see jfc-host-app's `(bar)/terminal.tsx`), so there's nowhere
-// real to send this yet. Flagged in lib/wizardDraft.ts's own doc comment.
+// `1g` — wizard step 3, the night's menu. Saved for real: "Next" sends the
+// whole menu and the alcohol cap to fnb-service (`PUT /events/:id/fnb/menu`),
+// which creates, updates and removes items in one transaction, so going
+// back and re-submitting never duplicates anything. The cap is enforced by
+// fnb-service at redemption (a bar terminal can't ring up an alcoholic item
+// past it). Opening this step for an event that already has a menu loads
+// the saved one (`GET /events/:id/fnb/menu`), so the server is the source
+// of truth, not this browser's draft.
 //
-// The mockup's "Tiers & menu" step also shows multi-tier ticket pricing
-// (Entry/Couple+Bar Tab/VIP Cabana, each with its own price and qty) — that
-// doesn't exist in this backend at all (`events.pricePaise`/`capacity` are
-// single scalar columns, no tiers table), so this stays a single-tier menu
-// builder rather than inventing a tiers concept with nowhere real to save
-// it. "Gross potential" below is a plain price × capacity multiplication,
-// not the platform-fee/GST/TDS split — that math has one real home
-// (payments-service's `splitFee`, per its own doc comment: "the same kind
-// of number two audiences must see agree"), which a wizard preview
-// shouldn't duplicate and risk drifting from.
+// "Gross potential" below is a plain price × capacity multiplication, not
+// the platform-fee/GST/TDS split: that math has one real home
+// (payments-service's `splitFee`), which a wizard preview shouldn't copy.
+
+interface ServerMenu {
+  items: Array<{ id: string; name: string; category: MenuItemCategory; isAlcoholic: boolean; pricePaise: number; stockInitial: number | null }>;
+  alcoholCapPerPass: number | null;
+}
+
+const CATEGORY_OPTIONS: Array<{ value: MenuItemCategory; label: string }> = [
+  { value: 'bar', label: 'Bar' },
+  { value: 'food', label: 'Food' },
+  { value: 'smoke', label: 'Smoke' },
+];
+
+const DEFAULT_ALCOHOL_CAP = 2; // Karnataka excise: 2 alcoholic servings per guest
+
+function blankItem(): MenuItemDraft {
+  return { name: '', pricePaise: 0, category: 'bar', isAlcoholic: false, stockInitial: null };
+}
+
 export default function WizardMenuPage() {
   const navigate = useNavigate();
+  const toast = useToast();
   const draft = loadDraft();
-  const [items, setItems] = useState<MenuItemDraft[]>(draft.menu?.items ?? [{ name: '', pricePaise: 0 }]);
-  const [alcoholCap, setAlcoholCap] = useState(draft.menu?.alcoholCapPerGuest ?? 2);
+  const [items, setItems] = useState<MenuItemDraft[]>(draft.menu?.items?.length ? draft.menu.items.map((i) => ({ ...blankItem(), ...i })) : [blankItem()]);
+  const [alcoholCap, setAlcoholCap] = useState(draft.menu?.alcoholCapPerGuest ?? DEFAULT_ALCOHOL_CAP);
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  // Load what's already saved for this event, if anything.
+  useEffect(() => {
+    if (!draft.eventId) return;
+    let cancelled = false;
+    api
+      .get<ServerMenu>(paths.eventMenu(draft.eventId))
+      .then((menu) => {
+        if (cancelled || menu.items.length === 0) return;
+        setItems(menu.items.map((i) => ({ id: i.id, name: i.name, category: i.category, isAlcoholic: i.isAlcoholic, pricePaise: i.pricePaise, stockInitial: i.stockInitial })));
+        if (menu.alcoholCapPerPass !== null) setAlcoholCap(menu.alcoholCapPerPass);
+      })
+      .catch(() => {
+        /* keep the local draft; saving will surface any real problem */
+      });
+    return () => {
+      cancelled = true;
+    };
+    // Load once per event; the draft object itself changes every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft.eventId]);
 
   function updateItem(i: number, patch: Partial<MenuItemDraft>) {
     setItems((prev) => prev.map((item, idx) => (idx === i ? { ...item, ...patch } : item)));
   }
 
   function addItem() {
-    setItems((prev) => [...prev, { name: '', pricePaise: 0 }]);
+    setItems((prev) => [...prev, blankItem()]);
   }
 
   function removeItem(i: number) {
@@ -48,14 +86,41 @@ export default function WizardMenuPage() {
     saveDraft({ menu: { items, alcoholCapPerGuest: alcoholCap } });
   }
 
-  function onContinue() {
+  async function onContinue() {
+    if (saving) return;
     const named = items.filter((item) => item.name.trim().length > 0);
     if (named.length === 0) {
       setError('Add at least one menu item.');
       return;
     }
-    saveDraft({ menu: { items: named, alcoholCapPerGuest: alcoholCap } });
-    navigate('/events/new/staff');
+    if (!draft.eventId) {
+      // The event row is created on the Location step.
+      navigate('/events/new/location');
+      return;
+    }
+    setError('');
+    setSaving(true);
+    try {
+      const saved = await api.put<ServerMenu>(paths.eventMenu(draft.eventId), {
+        items: named.map((i) => ({
+          ...(i.id ? { id: i.id } : {}),
+          name: i.name.trim(),
+          category: i.category,
+          isAlcoholic: i.isAlcoholic,
+          pricePaise: i.pricePaise,
+          stockInitial: i.stockInitial ?? null,
+        })),
+        alcoholCapPerPass: alcoholCap,
+      });
+      const savedItems = saved.items.map((i) => ({ id: i.id, name: i.name, category: i.category, isAlcoholic: i.isAlcoholic, pricePaise: i.pricePaise, stockInitial: i.stockInitial }));
+      setItems(savedItems);
+      saveDraft({ menu: { items: savedItems, alcoholCapPerGuest: alcoholCap } });
+      navigate('/events/new/staff');
+    } catch (err) {
+      showApiError(toast, err, 'Could not save the menu.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   const grossPotentialRupees = draft.basics ? draft.basics.priceRupees * draft.basics.capacity : 0;
@@ -67,7 +132,11 @@ export default function WizardMenuPage() {
         draftSavedAt={draft.updatedAt}
         onSaveDraft={onSaveDraft}
         onBack={() => navigate('/events/new/location')}
-        rightSlot={<Button variant="primary" onClick={onContinue}>Next: staff</Button>}
+        rightSlot={
+          <Button variant="primary" onClick={onContinue} disabled={saving}>
+            {saving ? 'Saving…' : 'Next: staff'}
+          </Button>
+        }
       />
       <WizardSteps current={2} />
 
@@ -80,10 +149,42 @@ export default function WizardMenuPage() {
 
           <Panel style={{ overflow: 'hidden' }}>
             {items.map((item, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 0.6fr', gap: 14, padding: '12px 18px', alignItems: 'flex-end', borderTop: i > 0 ? '1px solid var(--paper-border)' : 'none' }}>
-                <TextField label={`Item ${i + 1}`} placeholder="House Pour · Whisky" value={item.name} onChange={(e) => updateItem(i, { name: e.target.value })} />
-                <TextField label="Price (₹)" type="number" min={0} placeholder="0 = included" value={item.pricePaise / 100} onChange={(e) => updateItem(i, { pricePaise: Math.round(Number(e.target.value) * 100) })} />
-                <Button type="button" variant="outline-danger" size="sm" onClick={() => removeItem(i)}>Remove</Button>
+              <div key={item.id ?? `new-${i}`} style={{ padding: '12px 18px', borderTop: i > 0 ? '1px solid var(--paper-border)' : 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 14, alignItems: 'flex-end' }}>
+                  <TextField label={`Item ${i + 1}`} placeholder="House Pour · Whisky" value={item.name} onChange={(e) => updateItem(i, { name: e.target.value })} />
+                  <Select<MenuItemCategory>
+                    label="Counter"
+                    value={item.category}
+                    options={CATEGORY_OPTIONS}
+                    onChange={(category) => updateItem(i, { category, isAlcoholic: category === 'bar' ? item.isAlcoholic : false })}
+                  />
+                  <TextField
+                    label="Price (₹)"
+                    type="number"
+                    min={0}
+                    placeholder="0 = included"
+                    value={item.pricePaise / 100}
+                    onChange={(e) => updateItem(i, { pricePaise: Math.max(0, Math.round(Number(e.target.value) * 100)) })}
+                  />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 14, alignItems: 'center' }}>
+                  <TextField
+                    label="Stock for the night"
+                    type="number"
+                    min={0}
+                    placeholder="Empty = unlimited"
+                    value={item.stockInitial ?? ''}
+                    onChange={(e) => updateItem(i, { stockInitial: e.target.value === '' ? null : Math.max(0, Math.floor(Number(e.target.value))) })}
+                  />
+                  <Checkbox
+                    label="Alcoholic"
+                    description="Counts toward the per-pass cap"
+                    checked={item.isAlcoholic}
+                    disabled={item.category !== 'bar'}
+                    onChange={(e) => updateItem(i, { isAlcoholic: e.target.checked })}
+                  />
+                  <Button type="button" variant="outline-danger" size="sm" onClick={() => removeItem(i)}>Remove</Button>
+                </div>
               </div>
             ))}
           </Panel>
@@ -95,15 +196,15 @@ export default function WizardMenuPage() {
           <Panel pad>
             <span className="text text-body-s" style={{ fontWeight: 500 }}>Excise compliance</span>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-              <span className="text text-body-s tone-secondary">Max alcoholic vouchers / pass</span>
+              <span className="text text-body-s tone-secondary">Max alcoholic items / pass</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                <button type="button" className="stepper-btn minus" onClick={() => setAlcoholCap((c) => Math.max(0, c - 1))}>−</button>
+                <button type="button" className="stepper-btn minus" aria-label="Lower the cap" onClick={() => setAlcoholCap((c) => Math.max(0, c - 1))}>−</button>
                 <span className="text text-numeral">{alcoholCap}</span>
-                <button type="button" className="stepper-btn plus" onClick={() => setAlcoholCap((c) => c + 1)}>+</button>
+                <button type="button" className="stepper-btn plus" aria-label="Raise the cap" onClick={() => setAlcoholCap((c) => c + 1)}>+</button>
               </div>
             </div>
             <Panel variant="positive" pad style={{ marginTop: 11 }}>
-              <span className="text text-caption">Bar terminal enforces this cap at redemption.</span>
+              <span className="text text-caption">The bar terminal refuses an alcoholic item once a pass has had this many.</span>
             </Panel>
           </Panel>
 
@@ -122,6 +223,15 @@ export default function WizardMenuPage() {
           <Chip tone="warning">Regional alcohol cap applies at redemption</Chip>
         </div>
       </div>
+
+      {draft.eventId ? (
+        <div style={{ marginTop: 18 }}>
+          <TiersPanel
+            eventId={draft.eventId}
+            menuItems={items.filter((i): i is MenuItemDraft & { id: string } => Boolean(i.id)).map((i) => ({ id: i.id, name: i.name, isAlcoholic: i.isAlcoholic }))}
+          />
+        </div>
+      ) : null}
 
       <div style={{ marginTop: 18 }}>
         <WizardPreviewCard basics={draft.basics} location={draft.location} menu={{ items, alcoholCapPerGuest: alcoholCap }} staff={draft.staff} />

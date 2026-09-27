@@ -292,8 +292,11 @@ export const approveGuestAtom = atom(null, async (_get, _set, input: { eventId: 
   api.post(paths.eventGuestApprove(input.eventId, input.passId)),
 );
 
+// Declining refunds the guest, so api-gateway requires an Idempotency-Key
+// (without one every decline was rejected with 400). Stable per pass: a retry
+// after a dropped response replays the first decline instead of refunding twice.
 export const declineGuestAtom = atom(null, async (_get, _set, input: { eventId: string; passId: string; reason: string }) =>
-  api.post(paths.eventGuestDecline(input.eventId, input.passId), { reason: input.reason }),
+  api.post(paths.eventGuestDecline(input.eventId, input.passId), { reason: input.reason }, { idempotencyKey: `decline-${input.passId}` }),
 );
 
 export const sendHostThreadMessageAtom = atom(null, async (_get, _set, input: { eventId: string; guestId: string; body: string }) =>

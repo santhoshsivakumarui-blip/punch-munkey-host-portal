@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { Page, PageHeader, Panel, PanelTitle, TextField, Button, Chip, KvRow, Skeleton, EmptyState, useToast } from '@jfc/ui-web';
 import { bankDetailsAtom, bankDetailsLoadable, submitBankDetailsAtom, taxLoadable, payoutsLoadable } from '../lib/atoms';
 import { showApiError, useToastOnError } from '../lib/toastError';
 import { formatINR } from '../lib/format';
+import { api, paths } from '../lib/api';
 
 // Real rates, `@jfc/shared`'s own splitFee() — 05-hard-parts.md §3 ("confirm
 // with finance before launch," per that function's own comment). No
@@ -12,9 +13,15 @@ import { formatINR } from '../lib/format';
 // mockup's `8h` shows one) — folded out rather than invented, since there's
 // no real number behind it; GST-on-fee is real and shown instead, which
 // the mockup's illustrative breakdown omits.
-const PLATFORM_FEE_PERCENT = 8;
-const TDS_PERCENT = 1;
-const GST_ON_FEE_PERCENT = 18;
+// The rates themselves come from payments-service (GET /hosts/me/fee-rates),
+// which serves @jfc/shared's FEE_RATES: the constants splitFee() actually
+// charges with, so what this page says can't drift from what's deducted.
+interface FeeRates {
+  platformFee: number;
+  tds194O: number;
+  gstOnFee: number;
+}
+const pct = (fraction: number | undefined) => (fraction === undefined ? '…' : `${Math.round(fraction * 10000) / 100}%`);
 
 /**
  * `8h` — "Where the money goes." `GET`/`POST /hosts/me/bank` are both real —
@@ -32,6 +39,10 @@ const GST_ON_FEE_PERCENT = 18;
  * false affordance this codebase avoids elsewhere.
  */
 export default function PayoutAccountPage() {
+  const [rates, setRates] = useState<FeeRates | null>(null);
+  useEffect(() => {
+    api.get<FeeRates>(paths.hostsMeFeeRates).then(setRates).catch(() => setRates(null));
+  }, []);
   const navigate = useNavigate();
   const toast = useToast();
   const submitBank = useSetAtom(submitBankDetailsAtom);
@@ -130,9 +141,9 @@ export default function PayoutAccountPage() {
           {latestPayout ? (
             <>
               <KvRow label="Ticket revenue" value={formatINR(latestPayout.grossPaise / 100)} mono />
-              <KvRow label={`Platform fee (${PLATFORM_FEE_PERCENT}%)`} value={`−${formatINR(latestPayout.feePaise / 100)}`} mono />
-              <KvRow label={`TDS, sec. 194-O (${TDS_PERCENT}%)`} value={`−${formatINR(latestPayout.tdsPaise / 100)}`} mono />
-              <KvRow label={`GST on fee (${GST_ON_FEE_PERCENT}%)`} value={`−${formatINR(latestPayout.gstPaise / 100)}`} mono />
+              <KvRow label={`Platform fee (${pct(rates?.platformFee)})`} value={`−${formatINR(latestPayout.feePaise / 100)}`} mono />
+              <KvRow label={`TDS, sec. 194-O (${pct(rates?.tds194O)})`} value={`−${formatINR(latestPayout.tdsPaise / 100)}`} mono />
+              <KvRow label={`GST on fee (${pct(rates?.gstOnFee)})`} value={`−${formatINR(latestPayout.gstPaise / 100)}`} mono />
               {latestPayout.heldPaise > 0 ? (
                 <KvRow label="Held (open disputes)" value={`−${formatINR(latestPayout.heldPaise / 100)}`} mono />
               ) : null}
@@ -140,7 +151,7 @@ export default function PayoutAccountPage() {
             </>
           ) : (
             <p className="text text-body-s tone-secondary" style={{ margin: 0 }}>
-              No payout yet — once one lands, this shows exactly what was deducted. Every payout is {PLATFORM_FEE_PERCENT}% platform fee, {TDS_PERCENT}% TDS, and {GST_ON_FEE_PERCENT}% GST on the fee, off the top of ticket revenue.
+              No payout yet — once one lands, this shows exactly what was deducted. Every payout is {pct(rates?.platformFee)} platform fee, {pct(rates?.tds194O)} TDS, and {pct(rates?.gstOnFee)} GST on the fee, off the top of ticket revenue.
             </p>
           )}
         </Panel>

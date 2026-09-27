@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { Page, Panel, PanelTitle, KvRow, Chip, Button, EmptyState, useToast } from '@jfc/ui-web';
+import { Page, Panel, PanelTitle, KvRow, Chip, Button, EmptyState, Checkbox, useToast } from '@jfc/ui-web';
 import { WizardSteps } from '../../components/WizardSteps';
 import { WizardTopBar } from '../../components/WizardTopBar';
 import { WizardPreviewCard } from '../../components/WizardPreviewCard';
@@ -10,6 +10,7 @@ import { sessionAtom } from '../../lib/atoms';
 import { api, paths } from '../../lib/api';
 import { showApiError } from '../../lib/toastError';
 import type { EventRecord } from '../../lib/types';
+import { REVEAL_HOURS_BEFORE_DOORS } from '../../schemas/wizard';
 
 /**
  * `2l` — wizard step 5, review & publish. `5e` (blocked publish
@@ -32,6 +33,15 @@ export default function WizardReviewPage() {
   const { user } = useAtomValue(sessionAtom);
   const draft = loadDraft();
   const [publishing, setPublishing] = useState(false);
+  const [pastGuests, setPastGuests] = useState<number | null>(null);
+  const [announce, setAnnounce] = useState(true);
+
+  useEffect(() => {
+    api
+      .get<{ count: number }>(paths.hostsMePastGuests)
+      .then((r) => setPastGuests(r.count))
+      .catch(() => setPastGuests(null));
+  }, []);
 
   const missing: string[] = [];
   if (!draft.basics) missing.push('Basics');
@@ -48,7 +58,7 @@ export default function WizardReviewPage() {
     setPublishing(true);
     try {
       await api.post<EventRecord>(paths.eventSubmit(draft.eventId));
-      await api.post<EventRecord>(paths.eventPublish(draft.eventId));
+      await api.post<EventRecord>(paths.eventPublish(draft.eventId), { announce: announce && (pastGuests ?? 0) > 0 });
       toast.show('Published — on sale now.', { tone: 'positive' });
       clearDraft();
       navigate('/events');
@@ -79,8 +89,7 @@ export default function WizardReviewPage() {
             <KvRow label="Type" value={draft.basics?.eventType ?? '—'} />
             <KvRow label="Doors" value={draft.basics ? `${draft.basics.dateISO}, ${draft.basics.startTime}–${draft.basics.endTime}` : '—'} />
             <KvRow label="Capacity" value={draft.basics ? String(draft.basics.capacity) : '—'} mono />
-            <KvRow label="Radius shown" value={draft.location ? `${draft.location.radiusKm.toFixed(1)} km` : '—'} mono />
-            <KvRow label="Reveal" value={draft.location ? `${draft.location.revealHoursBefore}h before doors` : '—'} />
+            <KvRow label="Reveal" value={`${REVEAL_HOURS_BEFORE_DOORS}h before doors`} />
             <KvRow label="Menu items" value={draft.menu ? String(draft.menu.items.length) : '0'} mono />
             <KvRow label="Drink cap" value={draft.menu ? `${draft.menu.alcoholCapPerGuest} per pass` : '—'} mono />
           </Panel>
@@ -137,9 +146,22 @@ export default function WizardReviewPage() {
 
           <Panel pad>
             <PanelTitle>Announce to</PanelTitle>
-            <p className="text text-body-s tone-secondary" style={{ marginTop: 4, marginBottom: 0 }}>
-              Past-guest and follower announcements aren't built yet — publishing only lists this event for discovery.
-            </p>
+            {pastGuests === null ? (
+              <p className="text text-body-s tone-secondary" style={{ marginTop: 4, marginBottom: 0 }}>Checking your past guests…</p>
+            ) : pastGuests === 0 ? (
+              <p className="text text-body-s tone-secondary" style={{ marginTop: 4, marginBottom: 0 }}>
+                No past guests yet. Once people have been scanned in at one of your nights, you can tell them about the next one here.
+              </p>
+            ) : (
+              <div style={{ marginTop: 8 }}>
+                <Checkbox
+                  label={`Tell ${pastGuests} past guest${pastGuests === 1 ? '' : 's'} about this night`}
+                  description="Only guests who turned on announcements get it. Sent when you publish."
+                  checked={announce}
+                  onChange={(e) => setAnnounce(e.target.checked)}
+                />
+              </div>
+            )}
           </Panel>
 
           <Panel variant="warning" pad>

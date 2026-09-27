@@ -57,36 +57,45 @@ export interface LocationFormValues {
   area: string;
   addressLine: string;
   gateCode: string;
-  revealHoursBefore: number;
-  /** `2k`'s "public radius" slider — decorative only, same as `addressLine`
-   * and `revealHoursBefore` above it: `events` has no radius/geofence
-   * column at all, so there's nothing real for this to reach. Kept, not
-   * dropped, because the redesign's job is matching the screen, not
-   * quietly removing the pieces with no backend yet — same call this
-   * step's own pre-existing fields already made. */
-  radiusKm: number;
 }
+
+/** The exact address unlocks this long before doors, for every event. A
+ * product rule (README: "The exact door unlocks four hours before doors
+ * open"), computed server-side as reveal_at = doors_at - 4h, not a setting. */
+export const REVEAL_HOURS_BEFORE_DOORS = 4;
 
 export const locationSchema: yup.ObjectSchema<LocationFormValues> = yup.object({
   venueName: yup.string().trim().required('The venue name — internal, never shown to guests.'),
   area: yup.string().trim().required('Guests see this area — never the exact address.'),
-  addressLine: yup.string().trim().required('The exact door — only revealed per the reveal window.'),
+  addressLine: yup.string().trim().required('The exact door — only revealed to pass holders, four hours before doors.'),
   gateCode: yup.string().trim().defined(),
-  revealHoursBefore: yup
-    .number()
-    .typeError('Enter a number of hours.')
-    .min(1, 'At least 1 hour before doors.')
-    .max(24, 'At most 24 hours before doors.')
-    .required('Set the reveal window.'),
-  radiusKm: yup.number().typeError('Enter a radius in km.').min(1, 'At least 1 km.').max(5, 'At most 5 km.').required(),
 });
 
+export type StaffRole = 'door' | 'bar';
+
+export interface StaffMember {
+  name: string;
+  role: StaffRole;
+}
+
+/** Wizard step 4. `members` each get a real staff invite link (ticketing-service
+ * POST /hosts/me/invites) that pairs their phone as a door or bar device.
+ * `minWomenPercent` is saved to `events.min_ratio_women` (0 = no minimum). */
 export interface StaffFormValues {
-  doorStaff: string;
-  ratioRule: string;
+  members: StaffMember[];
+  minWomenPercent: number;
 }
 
 export const staffSchema: yup.ObjectSchema<StaffFormValues> = yup.object({
-  doorStaff: yup.string().trim().required('Name at least one door staff member.'),
-  ratioRule: yup.string().trim().required('Set the screening ratio rule.'),
+  members: yup
+    .array(
+      yup.object({
+        name: yup.string().trim().required('Enter a name.'),
+        role: yup.mixed<StaffRole>().oneOf(['door', 'bar']).required(),
+      }),
+    )
+    .min(1, 'Add at least one door staff member.')
+    .required()
+    .test('has-door', 'At least one person must work the door.', (members) => (members ?? []).some((m) => m.role === 'door')),
+  minWomenPercent: yup.number().min(0).max(100).required(),
 });

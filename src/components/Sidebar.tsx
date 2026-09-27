@@ -52,6 +52,7 @@ const BASE_TREE: TreeItem[] = [
   { type: 'leaf', to: '/ratings', label: 'Ratings', icon: 'star' },
   { type: 'leaf', to: '/promoters', label: 'Promoters', icon: 'person' },
   { type: 'leaf', to: '/notifications', label: 'Notifications', icon: 'bell' },
+  { type: 'leaf', to: '/support', label: 'Support', icon: 'heart' },
   { type: 'leaf', to: '/devices', label: 'Devices', icon: 'lock' },
 ];
 
