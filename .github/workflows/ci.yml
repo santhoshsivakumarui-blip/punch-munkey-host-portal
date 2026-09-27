@@ -23,10 +23,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: punch-munkey-host-portal
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: santhoshsivakumarui-blip/punch-munkey-ui-web
           path: punch-munkey-ui-web
@@ -55,10 +55,10 @@ jobs:
     name: Docker image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: punch-munkey-host-portal
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: santhoshsivakumarui-blip/punch-munkey-ui-web
           path: punch-munkey-ui-web
